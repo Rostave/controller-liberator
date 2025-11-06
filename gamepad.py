@@ -1,5 +1,6 @@
 """
 Group: Keyboard Liberators
+This code provides a simpler way to send gamepad controls to the virtual controller.
 """
 
 import vgamepad as vg
@@ -28,18 +29,27 @@ class VGamepad:
 
     def left_trigger(self, value):
         self._gamepad.left_trigger_float(value)  # [0.0, 1.0]
+        self._gamepad.update()
 
     def right_trigger(self, value):
         self._gamepad.right_trigger_float(value)  # [0.0, 1.0]
+        self._gamepad.update()
 
     def left_joystick(self, x_value, y_value):
         self._gamepad.left_joystick_float(x_value, y_value)  # [-1.0, 1.0]
+        self._gamepad.update()
 
     def right_joystick(self, x_value, y_value):
         self._gamepad.right_joystick_float(x_value, y_value)  # [-1.0, 1.0]
+        self._gamepad.update()
 
     def press_button(self, button: XUSB_BUTTON):
         self._gamepad.press_button(button)
+        self._gamepad.update()
 
     def release_button(self, button: XUSB_BUTTON):
         self._gamepad.release_button(button)
+        self._gamepad.update()
+
+    def release(self):
+        del self._gamepad

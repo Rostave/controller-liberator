@@ -1,28 +1,25 @@
 """
 Group: Keyboard Liberators
+This program applies MediaPipe to detect user pose and obtain landmarks.
+When receiving invocation from the main loop, it will call the detector instance for pose landmarks.
 """
 
-
-class PoseFeature:
-    """
-    Static pose feature class
-    """
-    hand_left_center: float = 0.0
-    hand_right_center: float = 0.0
+from context import Context
 
 
-class V:
+class Detector:
     """
     Detect user pose, obtaining landmarks
     """
-    def __init__(self):
-        """
-        TODO: Initialize the MediaPipe detector instance
-        """
+    def __init__(self, ctx: Context):
+        self.ctx: Context = ctx
+        ctx.detector = self
+        # TODO: Initialize the MediaPipe detector instance
 
-    def get_landmarks(self):
+    def get_landmarks(self, frame):
         """
-        TODO: Use the detector instance to detect user pose of upper body, obtain and return landmarks
+        Use the detector instance to detect user pose of upper body, obtain and return landmarks.
+        TODO: Use the detector instance to detect user pose of upper body, obtain and return landmarks.
         """
 
 
