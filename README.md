@@ -17,12 +17,8 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-
-  <h2 align="center">Keyboard Liberator</h3>
-
-  <p align="center">
-    <h4>Liberate your keyboard in unexpected ways and achieve a novel and smooth gaming experience</h4>
-  </p>
+  <h1 align="center">Keyboard Liberator</h1>
+  <h4>Liberate your keyboard in unexpected ways and achieve a novel and smooth gaming experience</h4>
   <br />
 </div>
 
