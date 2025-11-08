@@ -6,6 +6,7 @@ This program processes the pose data and maps it to control signals and send the
 from typing import List
 from context import Context
 import math
+from presets import PresetManager
 
 
 class PoseFeature:
@@ -57,6 +58,14 @@ class PoseControlMapper:
             self.behind_thresh = 0.08
             self.joystick_deadzone = 0.02
             self.steering_scale = 1.0
+
+        # 预设管理器占位：用于将来注册/切换按键操作预设
+        # PresetManager 目前是空的占位实现，方便后续扩展
+        try:
+            self.preset_manager = PresetManager(ctx)
+        except Exception:
+            # 如果导入或初始化失败，仍保持程序可运行
+            self.preset_manager = None
 
     def extract_features(self, landmarks) -> PoseFeature:
         # 提取特征：计算手部中心、躯干俯仰角、握拳状态以及双手向后摆等标志
