@@ -61,11 +61,14 @@ class GUI:
                 _winlib.SetWindowLongA(hwnd, GWL_EXSTYLE, 
                                       _winlib.GetWindowLongA(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED)
                 
-                # 色键透明：让黑色(0,0,0)完全透明
+                # 方法1: 整体透明度 + 色键透明组合
+                # 先设置黑色为完全透明
                 colorkey = 0x000000  # 黑色 RGB(0,0,0)
-                _winlib.SetLayeredWindowAttributes(hwnd, colorkey, 0, LWA_COLORKEY)
+                # 然后设置整体窗口透明度，让组件也半透明
+                _winlib.SetLayeredWindowAttributes(hwnd, colorkey, 200, LWA_COLORKEY | LWA_ALPHA)
+                # 200是整体透明度 (0-255)，可以看到窗口后面的内容
                 
-                print("窗口色键透明已启用 (黑色背景将完全透明)")
+                print("窗口半透明已启用 (可以透视窗口)")
             except Exception as e:
                 print(f"设置窗口透明失败: {e}")
 
@@ -157,26 +160,32 @@ class GUI:
     
     def _draw_pedal(self, x, y, pressure, color, label):
         """
-        Draw a pedal with fill based on pressure.
+        Draw a pedal with fill based on pressure (white with transparency).
         """
         pedal_width = 60
         pedal_height = 100
         
-        # 背景（未按下部分）
-        bg_rect = pygame.Rect(x, y, pedal_width, pedal_height)
-        pygame.draw.rect(self.screen, (80, 80, 80), bg_rect, border_radius=10)
+        # 创建半透明 Surface
+        pedal_surface = pygame.Surface((pedal_width, pedal_height), pygame.SRCALPHA)
         
-        # 填充（按下部分，从下往上填充）
+        # 背景（未按下部分 - 白色半透明）
+        bg_rect = pygame.Rect(0, 0, pedal_width, pedal_height)
+        pygame.draw.rect(pedal_surface, (255, 255, 255, 80), bg_rect, border_radius=10)  # 白色，透明度80
+        
+        # 填充（按下部分，从下往上填充 - 白色更不透明）
         fill_height = int(pedal_height * pressure)
         if fill_height > 0:
-            fill_rect = pygame.Rect(x, y + pedal_height - fill_height, 
+            fill_rect = pygame.Rect(0, pedal_height - fill_height, 
                                     pedal_width, fill_height)
-            pygame.draw.rect(self.screen, color, fill_rect, border_radius=10)
+            pygame.draw.rect(pedal_surface, (255, 255, 255, 200), fill_rect, border_radius=10)  # 白色，透明度200
         
-        # 边框
-        pygame.draw.rect(self.screen, (200, 200, 200), bg_rect, 3, border_radius=10)
+        # 边框（白色）
+        pygame.draw.rect(pedal_surface, (255, 255, 255, 255), bg_rect, 3, border_radius=10)
         
-        # 标签
+        # 贴到主屏幕
+        self.screen.blit(pedal_surface, (x, y))
+        
+        # 标签（白色）
         font = pygame.font.Font(None, 20)
         text = font.render(label, True, (255, 255, 255))
         text_rect = text.get_rect(centerx=x + pedal_width // 2, y=y + pedal_height + 10)
@@ -184,45 +193,67 @@ class GUI:
     
     def _draw_handbrake(self, x, y, active):
         """
-        Draw handbrake indicator (horizontal bar).
+        Draw handbrake indicator (horizontal bar - white with transparency).
         """
         bar_width = 120
         bar_height = 30
         
-        color = (255, 200, 0) if active else (100, 100, 100)
-        bar_rect = pygame.Rect(x, y, bar_width, bar_height)
-        pygame.draw.rect(self.screen, color, bar_rect, border_radius=15)
+        # 创建半透明 Surface
+        bar_surface = pygame.Surface((bar_width, bar_height), pygame.SRCALPHA)
         
-        # 图标/文字
+        # 根据激活状态设置透明度
+        alpha = 220 if active else 100
+        bar_rect = pygame.Rect(0, 0, bar_width, bar_height)
+        pygame.draw.rect(bar_surface, (255, 255, 255, alpha), bar_rect, border_radius=15)
+        
+        # 边框
+        pygame.draw.rect(bar_surface, (255, 255, 255, 255), bar_rect, 2, border_radius=15)
+        
+        # 贴到主屏幕
+        self.screen.blit(bar_surface, (x, y))
+        
+        # 图标/文字（白色）
         font = pygame.font.Font(None, 24)
-        text = font.render("HANDBRAKE" if active else "---", True, (0, 0, 0))
-        text_rect = text.get_rect(center=bar_rect.center)
+        text = font.render("HANDBRAKE" if active else "---", True, (255, 255, 255))
+        text_rect = text.get_rect(center=(x + bar_width // 2, y + bar_height // 2))
         self.screen.blit(text, text_rect)
     
     def _draw_button_cluster(self, x, y):
         """
-        Draw Xbox-style button cluster (Y, X, B, A).
+        Draw Xbox-style button cluster (white with transparency).
         """
         button_radius = 20
         button_spacing = 50
         
         buttons = [
-            {'pos': (x, y - button_spacing), 'label': 'Y', 'color': (255, 215, 0)},  # 上
-            {'pos': (x - button_spacing, y), 'label': 'X', 'color': (100, 150, 255)},  # 左
-            {'pos': (x + button_spacing, y), 'label': 'B', 'color': (255, 100, 100)},  # 右
-            {'pos': (x, y + button_spacing), 'label': 'A', 'color': (100, 255, 100)},  # 下
+            {'pos': (x, y - button_spacing), 'label': 'Y'},  # 上
+            {'pos': (x - button_spacing, y), 'label': 'X'},  # 左
+            {'pos': (x + button_spacing, y), 'label': 'B'},  # 右
+            {'pos': (x, y + button_spacing), 'label': 'A'},  # 下
         ]
         
         for btn in buttons:
-            # 外圈
-            pygame.draw.circle(self.screen, (60, 60, 60), btn['pos'], button_radius + 3)
-            # 按钮主体
-            pygame.draw.circle(self.screen, btn['color'], btn['pos'], button_radius)
-            # 字母
+            # 创建半透明按钮 Surface
+            btn_size = (button_radius * 2 + 6) * 2
+            btn_surface = pygame.Surface((btn_size, btn_size), pygame.SRCALPHA)
+            center = (btn_size // 2, btn_size // 2)
+            
+            # 外圈（白色半透明）
+            pygame.draw.circle(btn_surface, (255, 255, 255, 100), center, button_radius + 3)
+            # 按钮主体（白色更不透明）
+            pygame.draw.circle(btn_surface, (255, 255, 255, 180), center, button_radius)
+            # 边框
+            pygame.draw.circle(btn_surface, (255, 255, 255, 255), center, button_radius, 2)
+            
+            # 字母（白色）
             font = pygame.font.Font(None, 28)
-            text = font.render(btn['label'], True, (0, 0, 0))
-            text_rect = text.get_rect(center=btn['pos'])
-            self.screen.blit(text, text_rect)
+            text = font.render(btn['label'], True, (255, 255, 255))
+            text_rect = text.get_rect(center=center)
+            btn_surface.blit(text, text_rect)
+            
+            # 贴到主屏幕
+            surface_pos = (btn['pos'][0] - btn_size // 2, btn['pos'][1] - btn_size // 2)
+            self.screen.blit(btn_surface, surface_pos)
 
     @staticmethod
     def handle_events() -> bool:

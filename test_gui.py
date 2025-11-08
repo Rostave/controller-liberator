@@ -40,7 +40,7 @@ except:
 
 # 导入 GUI
 import importlib.util
-spec = importlib.util.spec_from_file_location("gui", "gui_test.py")
+spec = importlib.util.spec_from_file_location("gui", "gui_demo.py")
 gui_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gui_module)
 
@@ -64,12 +64,13 @@ throttle = 0.0
 handbrake = False
 time_counter = 0
 
-print("GUI 测试启动！")
+print("GUI 半透明测试启动！")
 print("操作说明：")
-print("  方向键上/下: 控制油门")
-print("  方向键左/右: 控制刹车")
+print("  W键: 油门加速")
+print("  S键: 刹车减速")
 print("  空格键: 切换手刹")
 print("  ESC: 退出")
+print("\n提示：窗口是半透明的，可以透过看到后面的桌面或应用！")
 
 # 主循环
 running = True
@@ -87,19 +88,15 @@ while running:
     # 键盘控制
     keys = pygame.key.get_pressed()
     
-    # 油门控制（上下键）
-    if keys[pygame.K_UP]:
+    # 油门控制（W键）
+    if keys[pygame.K_w]:
         throttle = min(1.0, throttle + 0.02)
-    elif keys[pygame.K_DOWN]:
-        throttle = max(0.0, throttle - 0.02)
     else:
         throttle *= 0.95  # 自然衰减
     
-    # 刹车控制（左右键）
-    if keys[pygame.K_LEFT]:
+    # 刹车控制（S键）
+    if keys[pygame.K_s]:
         brake = min(1.0, brake + 0.02)
-    elif keys[pygame.K_RIGHT]:
-        brake = max(0.0, brake - 0.02)
     else:
         brake *= 0.95  # 自然衰减
     
@@ -116,22 +113,28 @@ while running:
         handbrake_active=handbrake
     )
     
-    # 绘制提示文字
+    # 绘制提示文字（带半透明背景）
     font = pygame.font.Font(None, 24)
     hint_texts = [
-        f"Brake: {brake:.2f} (← →)",
-        f"Throttle: {throttle:.2f} (↑ ↓)",
+        f"Throttle: {throttle:.2f} (W)",
+        f"Brake: {brake:.2f} (S)",
         f"Handbrake: {'ON' if handbrake else 'OFF'} (SPACE)",
-        "Press ESC to exit"
+        "Press ESC to exit",
+        "Window is semi-transparent!"
     ]
     
     for i, text in enumerate(hint_texts):
+        # 创建半透明背景
         text_surface = font.render(text, True, (255, 255, 255))
-        # 添加黑色背景使文字更清晰
         text_rect = text_surface.get_rect()
         text_rect.topleft = (10, 10 + i * 30)
-        bg_rect = text_rect.inflate(10, 5)
-        pygame.draw.rect(gui.screen, (0, 0, 0, 180), bg_rect)
+        
+        # 使用半透明Surface作为背景
+        bg_surface = pygame.Surface((text_rect.width + 10, text_rect.height + 5), pygame.SRCALPHA)
+        bg_surface.fill((255, 255, 255, 60))  # 白色半透明背景
+        gui.screen.blit(bg_surface, (text_rect.x - 5, text_rect.y - 2))
+        
+        # 绘制文字
         gui.screen.blit(text_surface, text_rect)
     
     # 更新显示
