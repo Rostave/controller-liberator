@@ -24,8 +24,11 @@ class VGamepad:
     BACK = XUSB_BUTTON.XUSB_GAMEPAD_BACK
     GUIDE = XUSB_BUTTON.XUSB_GAMEPAD_GUIDE
 
-    def __init__(self):
-        self._gamepad = vg.VX360Gamepad()
+    def __init__(self, skip=False):
+        if not skip:
+            self._gamepad = vg.VX360Gamepad()
+        else:
+            self._gamepad = None
 
     def left_trigger(self, value):
         self._gamepad.left_trigger_float(value)  # [0.0, 1.0]
@@ -52,4 +55,5 @@ class VGamepad:
         self._gamepad.update()
 
     def release(self):
-        del self._gamepad
+        if self._gamepad:
+            del self._gamepad

@@ -64,7 +64,7 @@ python main.py
 
 Every group member contribute equally to the project.
 
-### Top contributors:
+### Contributors:
 
 <a href="https://github.com/Rostave/keyboard-liberator/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Rostave/keyboard-liberator" alt="contrib.rocks image" />

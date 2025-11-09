@@ -2,6 +2,8 @@
 Group: Keyboard Liberators
 """
 
+from presets import Preset
+
 
 class Context:
     """
@@ -11,9 +13,14 @@ class Context:
         self.cfg = config  # configuration object reference
         self.detector = None  # pose detector instance
         self.gui = None  # GUI window reference
+        self.preset_mgr = None  # GUI settings reference
         self.mapper = None  # pose-control mapper instance
         self.gamepad = None  # virtual gamepad reference
         self.tkparam = None  # tkparam window reference
+
+    @property
+    def active_preset(self) -> Preset:
+        return self.preset_mgr.active_preset
 
     def close(self):
         if self.tkparam:

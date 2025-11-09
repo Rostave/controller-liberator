@@ -9,10 +9,11 @@ import cv2
 import configparser
 
 from context import Context
+from presets import PresetManager
 from detector import Detector
 from gamepad import VGamepad
-from mapping import PoseFeature, PoseControlMapper
-from gui_test import GUI
+from mapping import PoseControlMapper
+from gui import GUI
 
 # Load configuration
 config = configparser.ConfigParser()
@@ -20,14 +21,16 @@ config.read('sysconfig.ini')
 
 # Initialize components
 ctx = Context(config)
+preset_mgr = PresetManager(ctx)
 camera = cv2.VideoCapture(0)
 FPS = camera.get(cv2.CAP_PROP_FPS)
 RESO = camera.get(cv2.CAP_PROP_FRAME_WIDTH), camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
 gui = GUI(ctx, RESO, FPS)
 detector = Detector(ctx)
 mapper = PoseControlMapper(ctx)
-gamepad = VGamepad()
+gamepad = VGamepad(True)
 ctx.gamepad = gamepad
+preset_mgr.load_presets()
 
 # Main loop
 while True:
@@ -43,12 +46,18 @@ while True:
         print("Cannot capture frame")
         break
 
-    gui.render_webcam_capture(frame)  # Draw webcam capture
-    landmarks = detector.get_landmarks(frame)  # Detect pose landmarks
-    gui.render_pose_landmarks(landmarks)  # Draw pose landmarks
-    features = mapper.extract_features(landmarks)  # Extract pose features
-    gui.render_pose_features(features)  # Draw pose features
-    mapper.trigger_control()  # Map pose features to gamepad controls
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Turn BGR image format to RGB
+    landmarks, visual_pose = detector.get_landmarks(frame)  # Detect pose landmarks
+
+    if landmarks:
+        gui.render_np_frame(visual_pose)  # Draw webcam capture
+        feats = mapper.extract_features(landmarks)  # Extract pose features
+        gui.render_pose_features(feats)  # Draw pose features on GUI
+        # gui.render_game_controls(feats)  # Draw game controls based on extracted features
+        # mapper.trigger_control()  # Map pose features to gamepad controls
+    else:
+        gui.render_np_frame(frame)
+
     gui.update_display()  # Update GUI display
 
 # Release resources

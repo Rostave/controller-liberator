@@ -1,0 +1,16 @@
+{
+  "visual": {
+    "show_fps": false,
+    "show_cam_capture": true,
+    "show_pose_estimation": true,
+    "fist_center_circle_radius": 9,
+    "fist_center_circle_color": "#ff0000ff"
+  },
+  "mapping": {
+    "max_pitch": 0.4,
+    "fist_thresh": 0.06,
+    "behind_thresh": 0.08,
+    "joystick_deadzone": 0.02,
+    "steering_scale": 1.0
+  }
+}
