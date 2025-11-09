@@ -75,6 +75,30 @@ class GUI:
         except Exception as e:
             print(f"警告: 无法加载油门图标 {throttle_icon_path}: {e}")
             self.throttle_icon = None
+        
+        # 加载方向盘图标
+        wheel_icon_path = os.path.join(os.path.dirname(__file__), "UI_Icons", "wheel.png")
+        try:
+            original_wheel = pygame.image.load(wheel_icon_path).convert_alpha()
+            new_size = (int(original_wheel.get_width() * scale_factor),
+                       int(original_wheel.get_height() * scale_factor))
+            self.wheel_icon = pygame.transform.smoothscale(original_wheel, new_size)
+            print(f"成功加载方向盘图标: {wheel_icon_path} (缩放至 {new_size})")
+        except Exception as e:
+            print(f"警告: 无法加载方向盘图标 {wheel_icon_path}: {e}")
+            self.wheel_icon = None
+        
+        # 加载方向盘2图标
+        wheel2_icon_path = os.path.join(os.path.dirname(__file__), "UI_Icons", "wheel2.png")
+        try:
+            original_wheel2 = pygame.image.load(wheel2_icon_path).convert_alpha()
+            new_size = (int(original_wheel2.get_width() * scale_factor),
+                       int(original_wheel2.get_height() * scale_factor))
+            self.wheel2_icon = pygame.transform.smoothscale(original_wheel2, new_size)
+            print(f"成功加载方向盘2图标: {wheel2_icon_path} (缩放至 {new_size})")
+        except Exception as e:
+            print(f"警告: 无法加载方向盘2图标 {wheel2_icon_path}: {e}")
+            self.wheel2_icon = None
 
     def _set_window_transparency(self):
         """
@@ -166,13 +190,15 @@ class GUI:
         """
 
     def render_game_controls(self, brake_pressure=0.0, throttle_pressure=0.0, 
-                            handbrake_active=False):
+                            handbrake_active=False, left_pressure=0.0, right_pressure=0.0):
         """
         Render game-style control UI elements in the bottom-right corner.
         Args:
             brake_pressure: 0.0-1.0, brake pedal pressure
             throttle_pressure: 0.0-1.0, throttle pedal pressure
-            handbrake_active: bool, handbrake status
+            handbrake_active: bool, handbrake status (not used)
+            left_pressure: 0.0-1.0, left turn pressure (A key)
+            right_pressure: 0.0-1.0, right turn pressure (D key)
         """
         # 基础位置（右下角）
         base_x = self.win_resolution[0] - 200
@@ -184,8 +210,8 @@ class GUI:
         self._draw_button_cluster(button_x, button_y)
         
         # 2. 绘制踏板在按钮上方
-        # 刹车在左边（往左移远一些）
-        brake_x = base_x - 60
+        # 刹车在左边（再往左移）
+        brake_x = base_x - 120
         brake_y = base_y
         self._draw_pedal(brake_x, brake_y, brake_pressure, (255, 100, 100), "Brake")
         
@@ -194,10 +220,26 @@ class GUI:
         throttle_y = base_y
         self._draw_pedal(throttle_x, throttle_y, throttle_pressure, (100, 255, 100), "Throttle")
         
-        # 3. 绘制手刹指示器（在踏板下方，按钮上方）
-        handbrake_x = base_x + 10
-        handbrake_y = base_y + 140
-        self._draw_handbrake(handbrake_x, handbrake_y, handbrake_active)
+        # 3. 先绘制方向盘轨道(wheel2)在左下角，与YB按键平齐
+        base_wheel_x = base_x - 200  # 往左移动
+        base_wheel_y = button_y  # 与按键Y平齐
+        
+        if self.wheel_icon is not None and self.wheel2_icon is not None:
+            wheel_width = self.wheel_icon.get_width()
+            wheel2_width = self.wheel2_icon.get_width()
+            wheel_height = self.wheel_icon.get_height()
+            # 计算wheel2的x坐标,使其相对于基础位置水平居中
+            wheel2_x = base_wheel_x + (wheel_width - wheel2_width) // 2
+            wheel2_y = base_wheel_y + wheel_height
+        else:
+            wheel2_x = base_wheel_x
+            wheel2_y = base_wheel_y + 51  # 使用默认高度
+        
+        # 先绘制轨道
+        self._draw_wheel2(wheel2_x, wheel2_y, left_pressure, right_pressure)
+        
+        # 4. 绘制方向盘在刹车下方
+        self._draw_wheel(base_wheel_x, base_wheel_y, left_pressure, right_pressure)
     
     def _draw_pedal(self, x, y, pressure, color, label):
         """
@@ -245,12 +287,6 @@ class GUI:
         
         # 贴到主屏幕
         self.screen.blit(result_surface, (x, y))
-        
-        # 标签（白色）
-        font = pygame.font.Font(None, 20)
-        text = font.render(label, True, (255, 255, 255))
-        text_rect = text.get_rect(centerx=x + icon_width // 2, y=y + icon_height + 10)
-        self.screen.blit(text, text_rect)
     
     def _draw_pedal_fallback(self, x, y, pressure, color, label):
         """
@@ -278,12 +314,122 @@ class GUI:
         
         # 贴到主屏幕
         self.screen.blit(pedal_surface, (x, y))
+    
+    def _draw_wheel(self, x, y, left_pressure, right_pressure):
+        """
+        Draw steering wheel with left/right fill from center.
+        Args:
+            x, y: position
+            left_pressure: 0.0-1.0, left turn pressure (A key)
+            right_pressure: 0.0-1.0, right turn pressure (D key)
+        """
+        if self.wheel_icon is None:
+            # 如果图标加载失败，使用fallback绘制
+            self._draw_wheel_fallback(x, y, left_pressure, right_pressure)
+            return
         
-        # 标签（白色）
-        font = pygame.font.Font(None, 20)
-        text = font.render(label, True, (255, 255, 255))
-        text_rect = text.get_rect(centerx=x + pedal_width // 2, y=y + pedal_height + 10)
-        self.screen.blit(text, text_rect)
+        icon_width, icon_height = self.wheel_icon.get_size()
+        
+        # 创建结果表面
+        result_surface = pygame.Surface((icon_width, icon_height), pygame.SRCALPHA)
+        
+        # 1. 绘制半透明的完整图标作为背景（未填充部分）
+        dimmed_icon = self.wheel_icon.copy()
+        dimmed_icon.fill((255, 255, 255, 100), special_flags=pygame.BLEND_RGBA_MULT)
+        result_surface.blit(dimmed_icon, (0, 0))
+        
+        # 2. 绘制填充部分（从中间向左或向右）
+        center_x = icon_width // 2
+        
+        # 向左填充（A键）
+        if left_pressure > 0:
+            fill_width = int(center_x * left_pressure)
+            if fill_width > 0:
+                # 创建临时表面用于左侧填充
+                fill_surface = pygame.Surface((fill_width, icon_height), pygame.SRCALPHA)
+                # 复制图标的左侧部分
+                source_x = center_x - fill_width
+                fill_surface.blit(self.wheel_icon, (-source_x, 0))
+                # 设置为更不透明
+                fill_surface.fill((255, 255, 255, 180), special_flags=pygame.BLEND_RGBA_MULT)
+                # 绘制到结果表面
+                result_surface.blit(fill_surface, (center_x - fill_width, 0))
+        
+        # 向右填充（D键）
+        if right_pressure > 0:
+            fill_width = int(center_x * right_pressure)
+            if fill_width > 0:
+                # 创建临时表面用于右侧填充
+                fill_surface = pygame.Surface((fill_width, icon_height), pygame.SRCALPHA)
+                # 复制图标的右侧部分
+                fill_surface.blit(self.wheel_icon, (-center_x, 0))
+                # 设置为更不透明
+                fill_surface.fill((255, 255, 255, 180), special_flags=pygame.BLEND_RGBA_MULT)
+                # 绘制到结果表面
+                result_surface.blit(fill_surface, (center_x, 0))
+        
+        # 贴到主屏幕
+        self.screen.blit(result_surface, (x, y))
+    
+    def _draw_wheel_fallback(self, x, y, left_pressure, right_pressure):
+        """
+        Fallback wheel drawing method if icon fails to load.
+        """
+        wheel_width = 80
+        wheel_height = 60
+        
+        # 创建半透明 Surface
+        wheel_surface = pygame.Surface((wheel_width, wheel_height), pygame.SRCALPHA)
+        
+        # 背景（未按下部分）
+        bg_rect = pygame.Rect(0, 0, wheel_width, wheel_height)
+        pygame.draw.rect(wheel_surface, (255, 255, 255, 100), bg_rect, border_radius=10)
+        
+        center_x = wheel_width // 2
+        
+        # 左侧填充
+        if left_pressure > 0:
+            fill_width = int(center_x * left_pressure)
+            fill_rect = pygame.Rect(center_x - fill_width, 0, fill_width, wheel_height)
+            pygame.draw.rect(wheel_surface, (255, 255, 255, 180), fill_rect, border_radius=10)
+        
+        # 右侧填充
+        if right_pressure > 0:
+            fill_width = int(center_x * right_pressure)
+            fill_rect = pygame.Rect(center_x, 0, fill_width, wheel_height)
+            pygame.draw.rect(wheel_surface, (255, 255, 255, 180), fill_rect, border_radius=10)
+        
+        # 中心线
+        pygame.draw.line(wheel_surface, (255, 255, 255, 200), 
+                        (center_x, 0), (center_x, wheel_height), 2)
+        
+        # 贴到主屏幕
+        self.screen.blit(wheel_surface, (x, y))
+    
+    def _draw_wheel2(self, x, y, left_pressure, right_pressure):
+        """
+        Draw second steering wheel icon without fill (constant transparency).
+        Args:
+            x, y: position
+            left_pressure: 0.0-1.0, left turn pressure (A key) - not used
+            right_pressure: 0.0-1.0, right turn pressure (D key) - not used
+        """
+        if self.wheel2_icon is None:
+            # 如果图标加载失败，跳过绘制
+            return
+        
+        icon_width, icon_height = self.wheel2_icon.get_size()
+        
+        # 创建结果表面
+        result_surface = pygame.Surface((icon_width, icon_height), pygame.SRCALPHA)
+        
+        # 绘制半透明的完整图标(不填充,保持恒定透明度)
+        dimmed_icon = self.wheel2_icon.copy()
+        dimmed_icon.fill((255, 255, 255, 100), special_flags=pygame.BLEND_RGBA_MULT)
+        result_surface.blit(dimmed_icon, (0, 0))
+        
+        # 贴到主屏幕
+        self.screen.blit(result_surface, (x, y))
     
     def _draw_handbrake(self, x, y, active):
         """
@@ -316,8 +462,8 @@ class GUI:
         """
         Draw Xbox-style button cluster (white with transparency).
         """
-        button_radius = 20
-        button_spacing = 50
+        button_radius = 16  # 缩小从20到16
+        button_spacing = 45  # 缩小从50到45
         
         buttons = [
             {'pos': (x, y - button_spacing), 'label': 'Y'},  # 上
@@ -332,17 +478,14 @@ class GUI:
             btn_surface = pygame.Surface((btn_size, btn_size), pygame.SRCALPHA)
             center = (btn_size // 2, btn_size // 2)
             
-            # 外圈（白色半透明）
-            pygame.draw.circle(btn_surface, (255, 255, 255, 100), center, button_radius + 3)
-            # 按钮主体（白色更不透明）
-            pygame.draw.circle(btn_surface, (255, 255, 255, 180), center, button_radius)
-            # 边框
-            pygame.draw.circle(btn_surface, (255, 255, 255, 255), center, button_radius, 2)
+            # 按钮主体（白色半透明，与踏板透明度一致）
+            pygame.draw.circle(btn_surface, (255, 255, 255, 100), center, button_radius)
             
-            # 字母（白色）
-            font = pygame.font.Font(None, 28)
+            # 字母（白色，更不透明）- 使用抗锯齿字体确保居中
+            font = pygame.font.Font(None, 30)
             text = font.render(btn['label'], True, (255, 255, 255))
-            text_rect = text.get_rect(center=center)
+            text_rect = text.get_rect()
+            text_rect.center = center  # 明确设置中心点
             btn_surface.blit(text, text_rect)
             
             # 贴到主屏幕

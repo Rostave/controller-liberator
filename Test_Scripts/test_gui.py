@@ -64,12 +64,16 @@ def create_dummy_frame(width=640, height=480):
 brake = 0.0
 throttle = 0.0
 handbrake = False
+left_turn = 0.0
+right_turn = 0.0
 time_counter = 0
 
 print("GUI 半透明测试启动！")
 print("操作说明：")
 print("  W键: 油门加速")
 print("  S键: 刹车减速")
+print("  A键: 左转")
+print("  D键: 右转")
 print("  空格键: 切换手刹")
 print("  ESC: 退出")
 print("\n提示：窗口是半透明的，可以透过看到后面的桌面或应用！")
@@ -102,6 +106,18 @@ while running:
     else:
         brake *= 0.95  # 自然衰减
     
+    # 左转控制（A键）
+    if keys[pygame.K_a]:
+        left_turn = min(1.0, left_turn + 0.02)
+    else:
+        left_turn *= 0.95  # 自然衰减
+    
+    # 右转控制（D键）
+    if keys[pygame.K_d]:
+        right_turn = min(1.0, right_turn + 0.02)
+    else:
+        right_turn *= 0.95  # 自然衰减
+    
     # 清屏（黑色背景会完全透明）
     gui.clear_color()
     
@@ -112,32 +128,10 @@ while running:
     gui.render_game_controls(
         brake_pressure=brake,
         throttle_pressure=throttle,
-        handbrake_active=handbrake
+        handbrake_active=handbrake,
+        left_pressure=left_turn,
+        right_pressure=right_turn
     )
-    
-    # 绘制提示文字（带半透明背景）
-    font = pygame.font.Font(None, 24)
-    hint_texts = [
-        f"Throttle: {throttle:.2f} (W)",
-        f"Brake: {brake:.2f} (S)",
-        f"Handbrake: {'ON' if handbrake else 'OFF'} (SPACE)",
-        "Press ESC to exit",
-        "Window is semi-transparent!"
-    ]
-    
-    for i, text in enumerate(hint_texts):
-        # 创建半透明背景
-        text_surface = font.render(text, True, (255, 255, 255))
-        text_rect = text_surface.get_rect()
-        text_rect.topleft = (10, 10 + i * 30)
-        
-        # 使用半透明Surface作为背景
-        bg_surface = pygame.Surface((text_rect.width + 10, text_rect.height + 5), pygame.SRCALPHA)
-        bg_surface.fill((255, 255, 255, 60))  # 白色半透明背景
-        gui.screen.blit(bg_surface, (text_rect.x - 5, text_rect.y - 2))
-        
-        # 绘制文字
-        gui.screen.blit(text_surface, text_rect)
     
     # 更新显示
     gui.update_display()
