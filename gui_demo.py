@@ -211,7 +211,7 @@ class GUI:
         
         # 2. 绘制踏板在按钮上方
         # 刹车在左边（再往左移）
-        brake_x = base_x - 120
+        brake_x = base_x - 170
         brake_y = base_y
         self._draw_pedal(brake_x, brake_y, brake_pressure, (255, 100, 100), "Brake")
         
@@ -222,7 +222,7 @@ class GUI:
         
         # 3. 先绘制方向盘轨道(wheel2)在左下角，与YB按键平齐
         base_wheel_x = base_x - 200  # 往左移动
-        base_wheel_y = button_y  # 与按键Y平齐
+        base_wheel_y = button_y - 30  # 与按键Y平齐，再往上移30
         
         if self.wheel_icon is not None and self.wheel2_icon is not None:
             wheel_width = self.wheel_icon.get_width()
