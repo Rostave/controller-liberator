@@ -7,8 +7,9 @@ import numpy as np
 import sys
 import os
 
-# 添加当前目录到路径
-sys.path.insert(0, os.path.dirname(__file__))
+# 添加父目录到路径，以便导入主目录的模块
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
 
 # 创建一个简单的 Context mock
 class MockConfig:
@@ -40,7 +41,8 @@ except:
 
 # 导入 GUI
 import importlib.util
-spec = importlib.util.spec_from_file_location("gui", "gui_demo.py")
+gui_demo_path = os.path.join(parent_dir, "gui_demo.py")
+spec = importlib.util.spec_from_file_location("gui", gui_demo_path)
 gui_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gui_module)
 

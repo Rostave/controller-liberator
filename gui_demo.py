@@ -10,6 +10,7 @@ import pygame
 import cv2
 import sys
 import ctypes
+import os
 
 
 class GUI:
@@ -40,6 +41,40 @@ class GUI:
         self._fps_accum_time: int = 0
         self._fps_accum_count: int = 0
         self._smoothed_fps: int = 0
+        
+        # 加载刹车图标
+        self._load_ui_icons()
+
+    def _load_ui_icons(self):
+        """
+        Load UI icons from UI_Icons folder and scale them.
+        """
+        # 图标缩放比例 (缩小到60%)
+        scale_factor = 0.6
+        
+        # 加载刹车图标
+        brake_icon_path = os.path.join(os.path.dirname(__file__), "UI_Icons", "break.png")
+        try:
+            original_brake = pygame.image.load(brake_icon_path).convert_alpha()
+            new_size = (int(original_brake.get_width() * scale_factor),
+                       int(original_brake.get_height() * scale_factor))
+            self.brake_icon = pygame.transform.smoothscale(original_brake, new_size)
+            print(f"成功加载刹车图标: {brake_icon_path} (缩放至 {new_size})")
+        except Exception as e:
+            print(f"警告: 无法加载刹车图标 {brake_icon_path}: {e}")
+            self.brake_icon = None
+        
+        # 加载油门图标
+        throttle_icon_path = os.path.join(os.path.dirname(__file__), "UI_Icons", "throttle.png")
+        try:
+            original_throttle = pygame.image.load(throttle_icon_path).convert_alpha()
+            new_size = (int(original_throttle.get_width() * scale_factor),
+                       int(original_throttle.get_height() * scale_factor))
+            self.throttle_icon = pygame.transform.smoothscale(original_throttle, new_size)
+            print(f"成功加载油门图标: {throttle_icon_path} (缩放至 {new_size})")
+        except Exception as e:
+            print(f"警告: 无法加载油门图标 {throttle_icon_path}: {e}")
+            self.throttle_icon = None
 
     def _set_window_transparency(self):
         """
@@ -140,27 +175,86 @@ class GUI:
             handbrake_active: bool, handbrake status
         """
         # 基础位置（右下角）
-        base_x = self.win_resolution[0] - 250
-        base_y = self.win_resolution[1] - 200
+        base_x = self.win_resolution[0] - 200
+        base_y = self.win_resolution[1] - 280
         
-        # 1. 绘制左踏板（刹车）
-        self._draw_pedal(base_x - 80, base_y, brake_pressure, (255, 100, 100), "Brake")
-        
-        # 2. 绘制右踏板（油门）
-        self._draw_pedal(base_x + 20, base_y, throttle_pressure, (100, 255, 100), "Throttle")
-        
-        # 3. 绘制手刹指示器（中间的横条）
-        handbrake_y = base_y + 120
-        self._draw_handbrake(base_x - 30, handbrake_y, handbrake_active)
-        
-        # 4. 绘制按钮组（Y, X, B, A）
-        button_x = base_x + 120
-        button_y = base_y + 40
+        # 1. 绘制按钮组（Y, X, B, A）在下方
+        button_x = base_x + 60
+        button_y = base_y + 180
         self._draw_button_cluster(button_x, button_y)
+        
+        # 2. 绘制踏板在按钮上方
+        # 刹车在左边（往左移远一些）
+        brake_x = base_x - 60
+        brake_y = base_y
+        self._draw_pedal(brake_x, brake_y, brake_pressure, (255, 100, 100), "Brake")
+        
+        # 油门在刹车右边（左移一些）
+        throttle_x = base_x + 20
+        throttle_y = base_y
+        self._draw_pedal(throttle_x, throttle_y, throttle_pressure, (100, 255, 100), "Throttle")
+        
+        # 3. 绘制手刹指示器（在踏板下方，按钮上方）
+        handbrake_x = base_x + 10
+        handbrake_y = base_y + 140
+        self._draw_handbrake(handbrake_x, handbrake_y, handbrake_active)
     
     def _draw_pedal(self, x, y, pressure, color, label):
         """
-        Draw a pedal with fill based on pressure (white with transparency).
+        Draw a pedal using icon image with fill based on pressure.
+        Selects brake or throttle icon based on label.
+        """
+        # 根据标签选择对应的图标
+        if label == "Brake":
+            icon = self.brake_icon
+        elif label == "Throttle":
+            icon = self.throttle_icon
+        else:
+            icon = None
+        
+        if icon is None:
+            # 如果图标加载失败，使用原来的绘制方式
+            self._draw_pedal_fallback(x, y, pressure, color, label)
+            return
+        
+        icon_width, icon_height = icon.get_size()
+        
+        # 创建结果表面
+        result_surface = pygame.Surface((icon_width, icon_height), pygame.SRCALPHA)
+        
+        # 1. 绘制半透明的完整图标作为背景（未填充部分）
+        dimmed_icon = icon.copy()
+        dimmed_icon.fill((255, 255, 255, 100), special_flags=pygame.BLEND_RGBA_MULT)
+        result_surface.blit(dimmed_icon, (0, 0))
+        
+        # 2. 绘制填充部分（从下往上，更透明）
+        fill_height = int(icon_height * pressure)
+        
+        if fill_height > 0:
+            # 创建一个临时表面用于填充部分
+            fill_surface = pygame.Surface((icon_width, fill_height), pygame.SRCALPHA)
+            
+            # 复制图标的底部部分
+            fill_surface.blit(icon, (0, -(icon_height - fill_height)))
+            
+            # 设置为更透明
+            fill_surface.fill((255, 255, 255, 180), special_flags=pygame.BLEND_RGBA_MULT)
+            
+            # 绘制填充部分到结果表面
+            result_surface.blit(fill_surface, (0, icon_height - fill_height))
+        
+        # 贴到主屏幕
+        self.screen.blit(result_surface, (x, y))
+        
+        # 标签（白色）
+        font = pygame.font.Font(None, 20)
+        text = font.render(label, True, (255, 255, 255))
+        text_rect = text.get_rect(centerx=x + icon_width // 2, y=y + icon_height + 10)
+        self.screen.blit(text, text_rect)
+    
+    def _draw_pedal_fallback(self, x, y, pressure, color, label):
+        """
+        Fallback pedal drawing method (original style) if icon fails to load.
         """
         pedal_width = 60
         pedal_height = 100
@@ -170,14 +264,14 @@ class GUI:
         
         # 背景（未按下部分 - 白色半透明）
         bg_rect = pygame.Rect(0, 0, pedal_width, pedal_height)
-        pygame.draw.rect(pedal_surface, (255, 255, 255, 80), bg_rect, border_radius=10)  # 白色，透明度80
+        pygame.draw.rect(pedal_surface, (255, 255, 255, 80), bg_rect, border_radius=10)
         
         # 填充（按下部分，从下往上填充 - 白色更不透明）
         fill_height = int(pedal_height * pressure)
         if fill_height > 0:
             fill_rect = pygame.Rect(0, pedal_height - fill_height, 
                                     pedal_width, fill_height)
-            pygame.draw.rect(pedal_surface, (255, 255, 255, 200), fill_rect, border_radius=10)  # 白色，透明度200
+            pygame.draw.rect(pedal_surface, (255, 255, 255, 200), fill_rect, border_radius=10)
         
         # 边框（白色）
         pygame.draw.rect(pedal_surface, (255, 255, 255, 255), bg_rect, 3, border_radius=10)
