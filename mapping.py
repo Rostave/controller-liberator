@@ -30,7 +30,8 @@ class ControlFeature:
         self.right_pressure: float = 0.0
 
         # Control parameters
-        # self.steering_left_border_angle = ctx.tkparam.get_scalar()
+        self.steering_left_border_angle = ctx.tkparam.get_scalar("steering left border", -60.0, -180.0, 0.0)
+        self.steering_right_border_angle = ctx.tkparam.get_scalar("steering right border", -60.0, -180.0, 0.0)
         # self.steering_left_border_angle
 
 
