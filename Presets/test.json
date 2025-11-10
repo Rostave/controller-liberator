@@ -1,7 +1,7 @@
 {
   "visual": {
     "show_fps": false,
-    "show_cam_capture": false,
+    "show_cam_capture": true,
     "show_pose_estimation": true,
     "fist_center_circle_radius": 9,
     "fist_center_circle_color": "#ff0000ff"

@@ -1,0 +1,12 @@
+# Core dependencies
+mediapipe==0.10.21
+opencv-python==4.11.0.86
+pygame==2.6.1
+
+# Virtual gamepad (Windows/Linux only - skip on macOS)
+# vgamepad  # Uncomment on Windows/Linux
+
+# Additional dependencies
+numpy>=1.26.4
+protobuf>=4.25.3
+attrs>=25.4.0
