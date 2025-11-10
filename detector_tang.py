@@ -4,8 +4,35 @@ This program applies MediaPipe to detect user pose and obtain landmarks.
 When receiving invocation from the main loop, it will call the detector instance for pose landmarks.
 """
 
-import mediapipe as mp
-import cv2
+"""
+Guarded imports for mediapipe and cv2 so editors (and users) get
+clear, actionable messages when packages are missing or incompatible.
+
+Note: MediaPipe historically lags support for the latest Python
+versions. As of this project note, MediaPipe packages commonly support
+up to Python 3.12. If you're running Python 3.13+, create a virtualenv
+with Python 3.12 and install:
+
+    pip install mediapipe opencv-python
+
+The Detector class will operate in a "disabled" mode if imports fail,
+so the rest of the project can still be inspected or run with graceful
+errors.
+"""
+
+try:
+    import mediapipe as mp
+    _HAS_MEDIAPIPE = True
+except Exception:  # broad to catch import errors and version incompat
+    mp = None
+    _HAS_MEDIAPIPE = False
+
+try:
+    import cv2
+    _HAS_CV2 = True
+except Exception:
+    cv2 = None
+    _HAS_CV2 = False
 from context import Context
 
 
@@ -16,7 +43,23 @@ class Detector:
     def __init__(self, ctx: Context):
         self.ctx: Context = ctx
         ctx.detector = self
+        # If mediapipe or cv2 aren't available, keep the detector in a
+        # disabled state and provide clear runtime guidance when used.
+        if not _HAS_MEDIAPIPE or not _HAS_CV2:
+            missing = []
+            if not _HAS_MEDIAPIPE:
+                missing.append('mediapipe')
+            if not _HAS_CV2:
+                missing.append('opencv-python (cv2)')
+            self.disabled = True
+            self._missing_deps = missing
+            self.mp_pose = None
+            self.pose = None
+            return
+
         # Initialize the MediaPipe detector instance
+        self.disabled = False
+        self._missing_deps = []
         self.mp_pose = mp.solutions.pose
         # 初始化姿态检测器，设置检测和跟踪置信度阈值
         # MediaPipe Pose检测全身33个landmark点（包括头部、身体、手臂、手等）
@@ -42,6 +85,13 @@ class Detector:
         Returns:
             landmarks: MediaPipe检测到的姿态landmarks，如果未检测到则返回None
         """
+        if getattr(self, 'disabled', False):
+            raise RuntimeError(
+                f"Detector cannot run because required packages are missing: {', '.join(self._missing_deps)}. "
+                "Install them in a Python 3.12 virtualenv (MediaPipe may not support 3.13 yet): "
+                "https://google.github.io/mediapipe/getting_started/python.html"
+            )
+
         # 将BGR图像转换为RGB格式（MediaPipe需要RGB格式）
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image_rgb.flags.writeable = False
