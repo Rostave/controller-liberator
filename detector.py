@@ -4,7 +4,14 @@ This program applies MediaPipe to detect user pose and obtain landmarks.
 When receiving invocation from the main loop, it will call the detector instance for pose landmarks.
 """
 
-import mediapipe as mp
+try:
+    import mediapipe as mp
+except Exception as e:
+    import os
+    os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
+    print("Mediapipe importing error, using 'PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python'")
+    import mediapipe as mp
+
 import cv2
 from context import Context
 from presets import Preset
@@ -33,6 +40,7 @@ class Detector:
         )
 
         self.visualize_landmarks: bool = True
+        self.show_cam_capture: bool = False
         ctx.preset_mgr.register_preset_update_callback(self.__on_update_preset)  # Register preset update callback
 
     def __on_update_preset(self, preset: Preset) -> None:
@@ -40,6 +48,7 @@ class Detector:
         Apply the new preset.
         """
         self.visualize_landmarks = preset.visual["show_pose_estimation"]
+        self.show_cam_capture = preset.visual["show_cam_capture"]
 
     def get_landmarks(self, frame):
         """
@@ -52,6 +61,8 @@ class Detector:
         frame.flags.writeable = True
 
         if results.pose_landmarks:
+            if not self.show_cam_capture:
+                frame *= 0.0
             # Visualize the pose landmarks
             if self.visualize_landmarks:
                 mp_drawing = mp.solutions.drawing_utils

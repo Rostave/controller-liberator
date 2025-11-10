@@ -2,8 +2,6 @@
 Group: Keyboard Liberators
 """
 
-from presets import Preset
-
 
 class Context:
     """
@@ -19,7 +17,7 @@ class Context:
         self.tkparam = None  # tkparam window reference
 
     @property
-    def active_preset(self) -> Preset:
+    def active_preset(self):
         return self.preset_mgr.active_preset
 
     def close(self):
