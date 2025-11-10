@@ -20,17 +20,18 @@ class ControlFeature:
         self.torso_pitch: float = 0.0
 
         # Visualizing parameters
-        self.hand_left_center: List = [0.0, 0.0]
-        self.hand_right_center: List = [0.0, 0.0]
-        self.hands_center: List = [0.0, 0.0]
-        self.brake_pressure: float = 0.0
-        self.throttle_pressure: float = 0.0
+        self.hand_left_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
+        self.hand_right_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
+        self.hands_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
+        self.brake_pressure: float = 0.0  # [0,1] brake trigger strength
+        self.throttle_pressure: float = 0.0  # [0,1] throttle trigger strength
         self.handbrake_active: bool = False
-        self.left_pressure: float = 0.0  # [0,1]
-        self.right_pressure: float = 0.0  # [0,1]
-        self.steer_angle: float = 0.0  # [-180,180]
+        self.left_pressure: float = 0.0  # [0,1] right joystick input strength (left)
+        self.right_pressure: float = 0.0  # [0,1] right joystick input strength (right)
+        self.steer_angle: float = 0.0  # [-180,180] estimated steering angle in degrees
 
         # Control parameters
+        # Steering sensitivity
         self.steering_safe_angle = ctx.tkparam.get_scalar("steering safe angle", 7.0, 0.0, 30.0)
         self.steering_left_border_angle = ctx.tkparam.get_scalar("steering left border", 45.0, 0.0, 80.0)
         self.steering_right_border_angle = ctx.tkparam.get_scalar("steering right border", 45.0, 0.0, 80.0)

@@ -278,7 +278,7 @@ class GUI:
 
     def __rotate_at_pivot(self, surface, ori_rect, pivot, angle):
         """Rotate an image around a pivot point"""
-        rotated_image = pygame.transform.rotate(surface, angle)
+        rotated_image = pygame.transform.rotozoom(surface, angle, 1.0)
         original_center = ori_rect.center
 
         # Vector from the original center to the pivot point

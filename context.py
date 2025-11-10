@@ -15,7 +15,7 @@ class Context:
         self.preset_mgr = None  # GUI settings reference
         self.mapper = None  # pose-control mapper instance
         self.gamepad = None  # virtual gamepad reference
-        self.tkparam = TKParamWindow()  # tkparam window reference
+        self.tkparam = TKParamWindow(title="Keyboard Liberators Calibration")  # tkparam window reference
 
     @property
     def active_preset(self):
