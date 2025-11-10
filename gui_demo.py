@@ -89,7 +89,7 @@ class GUI:
             self.wheel_icon = None
         
         # 加载方向盘2图标
-        wheel2_icon_path = os.path.join(os.path.dirname(__file__), "UI_Icons", "wheel2.png")
+        wheel2_icon_path = os.path.join(os.path.dirname(__file__), "UI_Icons", "wheel_track.png")
         try:
             original_wheel2 = pygame.image.load(wheel2_icon_path).convert_alpha()
             new_size = (int(original_wheel2.get_width() * scale_factor),

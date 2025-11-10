@@ -26,12 +26,14 @@ class ControlFeature:
         self.brake_pressure: float = 0.0
         self.throttle_pressure: float = 0.0
         self.handbrake_active: bool = False
-        self.left_pressure: float = 0.0
-        self.right_pressure: float = 0.0
+        self.left_pressure: float = 0.0  # [0,1]
+        self.right_pressure: float = 0.0  # [0,1]
+        self.steer_angle: float = 0.0  # [-180,180]
 
         # Control parameters
-        self.steering_left_border_angle = ctx.tkparam.get_scalar("steering left border", -60.0, -180.0, 0.0)
-        self.steering_right_border_angle = ctx.tkparam.get_scalar("steering right border", -60.0, -180.0, 0.0)
+        self.steering_safe_angle = ctx.tkparam.get_scalar("steering safe angle", 7.0, 0.0, 30.0)
+        self.steering_left_border_angle = ctx.tkparam.get_scalar("steering left border", 45.0, 0.0, 80.0)
+        self.steering_right_border_angle = ctx.tkparam.get_scalar("steering right border", 45.0, 0.0, 80.0)
         # self.steering_left_border_angle
 
 
@@ -86,10 +88,6 @@ class PoseControlMapper:
             lm = landmarks.landmark[i]
             return lm.x, lm.y, lm.z
 
-        # 计算左右手中心：对指定的手部关节点取平均，作为手部中心坐标
-        left_points = [L(i) for i in self.left_hand_indices]
-        right_points = [L(i) for i in self.right_hand_indices]
-
         def avg(points):
             n = len(points)
             sx = sum(p[0] for p in points)
@@ -97,65 +95,77 @@ class PoseControlMapper:
             sz = sum(p[2] for p in points)
             return sx / n, sy / n, sz / n
 
+        def clamp01(x:float):
+            return max(0.0, min(1.0, x))
+
+        # 计算左右手中心：对指定的手部关节点取平均，作为手部中心坐标
+        left_points = [L(i) for i in self.left_hand_indices]
+        right_points = [L(i) for i in self.right_hand_indices]
+
         lcx, lcy, lcz = avg(left_points)
         rcx, rcy, rcz = avg(right_points)
         f.hand_left_center = [1-lcx, lcy]
         f.hand_right_center = [1-rcx, rcy]
         f.hands_center = [1 - (lcx+rcx)/2.0, (lcy+rcy)/2.0]
 
-        angle_to_hori = math.degrees(math.atan2(rcy-lcy, rcx-lcx))
-        print(angle_to_hori)
+        # Horizontal - 0 degree; Steer right to 90 degree; Steer left to -90
+        f.steer_angle = math.degrees(math.atan2(rcx-lcx, rcy-lcy))+90.0
+        safe_angle = f.steering_safe_angle.get()
+        f.left_pressure = clamp01((-f.steer_angle-safe_angle) / f.steering_left_border_angle.get())\
+            if f.steer_angle < 0 else 0.0
+        f.right_pressure = clamp01((f.steer_angle-safe_angle) / f.steering_right_border_angle.get()) \
+            if f.steer_angle > 0 else 0.0
 
         return f
 
         # 躯干俯仰角估算：使用双肩与双臀（或髋）中点，估计前倾/后仰角度
-        shoulder_pts = [L(i) for i in self.body_up_indices]
-        hip_pts = [L(i) for i in [23, 24]]
-        sx, sy, sz = avg(shoulder_pts)
-        hx, hy, hz = avg(hip_pts)
-
-        # vector from hips to shoulders
-        vx = sx - hx
-        vy = sy - hy
-        vz = sz - hz
-
-        # pitch: positive when shoulders are closer (leaning forward)
-        # use atan2(-vz, vy) so that more negative vz (shoulders closer) => positive pitch
-        f.torso_pitch = math.atan2(-vz, vy) if (vy != 0 or vz != 0) else 0.0
-
-        # 握拳检测：通过指尖与手腕的二维距离判断是否握拳（距离较小表示握拳）
-        # 指尖索引（近似）：左手19,21；右手20,22
-        def dist(a, b):
-            return math.hypot(a[0] - b[0], a[1] - b[1])
-
-        # left wrist is index 15, right wrist 16
-        lw = L(15)
-        rw = L(16)
-        left_tips = [L(19), L(21)]
-        right_tips = [L(20), L(22)]
-        left_avg_tip = ((left_tips[0][0] + left_tips[1][0]) / 2.0, (left_tips[0][1] + left_tips[1][1]) / 2.0)
-        right_avg_tip = ((right_tips[0][0] + right_tips[1][0]) / 2.0, (right_tips[0][1] + right_tips[1][1]) / 2.0)
-
-        left_wrist_xy = (lw[0], lw[1])
-        right_wrist_xy = (rw[0], rw[1])
-
-        left_tip_dist = dist(left_avg_tip, left_wrist_xy)
-        right_tip_dist = dist(right_avg_tip, right_wrist_xy)
-
-        # 使用配置的阈值判断是否握拳
-        fist_thresh = self.ctx.active_preset.mapping["fist_thresh"]
-        f.left_fist = left_tip_dist < fist_thresh
-        f.right_fist = right_tip_dist < fist_thresh
-
-        # 双手向后摆检测：比较手的z值与躯干中点z，若都显著更大则视为向后摆
-        behind_thresh = self.ctx.active_preset.mapping["behind_thresh"]
-        body_mid_z = (sz + hz) / 2.0
-        if (lcz - body_mid_z) > behind_thresh and (rcz - body_mid_z) > behind_thresh:
-            f.hands_behind = True
-        else:
-            f.hands_behind = False
-
-        return f
+        # shoulder_pts = [L(i) for i in self.body_up_indices]
+        # hip_pts = [L(i) for i in [23, 24]]
+        # sx, sy, sz = avg(shoulder_pts)
+        # hx, hy, hz = avg(hip_pts)
+        #
+        # # vector from hips to shoulders
+        # vx = sx - hx
+        # vy = sy - hy
+        # vz = sz - hz
+        #
+        # # pitch: positive when shoulders are closer (leaning forward)
+        # # use atan2(-vz, vy) so that more negative vz (shoulders closer) => positive pitch
+        # f.torso_pitch = math.atan2(-vz, vy) if (vy != 0 or vz != 0) else 0.0
+        #
+        # # 握拳检测：通过指尖与手腕的二维距离判断是否握拳（距离较小表示握拳）
+        # # 指尖索引（近似）：左手19,21；右手20,22
+        # def dist(a, b):
+        #     return math.hypot(a[0] - b[0], a[1] - b[1])
+        #
+        # # left wrist is index 15, right wrist 16
+        # lw = L(15)
+        # rw = L(16)
+        # left_tips = [L(19), L(21)]
+        # right_tips = [L(20), L(22)]
+        # left_avg_tip = ((left_tips[0][0] + left_tips[1][0]) / 2.0, (left_tips[0][1] + left_tips[1][1]) / 2.0)
+        # right_avg_tip = ((right_tips[0][0] + right_tips[1][0]) / 2.0, (right_tips[0][1] + right_tips[1][1]) / 2.0)
+        #
+        # left_wrist_xy = (lw[0], lw[1])
+        # right_wrist_xy = (rw[0], rw[1])
+        #
+        # left_tip_dist = dist(left_avg_tip, left_wrist_xy)
+        # right_tip_dist = dist(right_avg_tip, right_wrist_xy)
+        #
+        # # 使用配置的阈值判断是否握拳
+        # fist_thresh = self.ctx.active_preset.mapping["fist_thresh"]
+        # f.left_fist = left_tip_dist < fist_thresh
+        # f.right_fist = right_tip_dist < fist_thresh
+        #
+        # # 双手向后摆检测：比较手的z值与躯干中点z，若都显著更大则视为向后摆
+        # behind_thresh = self.ctx.active_preset.mapping["behind_thresh"]
+        # body_mid_z = (sz + hz) / 2.0
+        # if (lcz - body_mid_z) > behind_thresh and (rcz - body_mid_z) > behind_thresh:
+        #     f.hands_behind = True
+        # else:
+        #     f.hands_behind = False
+        #
+        # return f
 
     def trigger_control(self):
         # 将提取到的特征映射为虚拟手柄输入：触发器、摇杆、按键等

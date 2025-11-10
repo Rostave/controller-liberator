@@ -53,7 +53,7 @@ while True:
         gui.render_np_frame(visual_pose)  # Draw webcam capture
         feats = mapper.extract_features(landmarks)  # Extract pose features
         gui.render_pose_features(feats)  # Draw pose features on GUI
-        # gui.render_game_controls(feats)  # Draw game controls based on extracted features
+        gui.render_game_controls(feats)  # Draw game controls based on extracted features
         # mapper.trigger_control()  # Map pose features to gamepad controls
     else:
         gui.render_np_frame(frame)

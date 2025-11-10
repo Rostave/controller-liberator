@@ -22,7 +22,8 @@ class Preset:
             "show_cam_capture": True,  # Show camera capture window
             "show_pose_estimation": True,  # Visualize pose estimation landmarks
             "fist_center_circle_radius": -1,
-            "fist_center_circle_color": "#ffffff",
+            "fist_center_circle_color": "#FF0000FF",
+            "steer_wheel_fill_color": "#87CEFAFF"
         }
 
         self.mapping = {

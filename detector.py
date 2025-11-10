@@ -69,7 +69,7 @@ class Detector:
             static_image_mode=False,  # False表示视频流模式，True表示静态图像模式
             model_complexity=cfg.getint("model_complexity"),
             smooth_landmarks=cfg.getboolean("smooth_landmarks"),
-            enable_segmentation=False,  # 不启用分割（不需要分割功能）
+            enable_segmentation=False,
             smooth_segmentation=True,
             min_detection_confidence=cfg.getfloat("min_detection_confidence"),
             min_tracking_confidence=cfg.getfloat("min_tracking_confidence")
@@ -88,15 +88,11 @@ class Detector:
     def get_landmarks(self, frame):
         """
         Use the detector instance to detect user pose of upper body, obtain and return landmarks.
-        使用检测器实例检测用户上半身姿态，获取并返回landmarks。
-        
-        Args:
-            frame: RGB格式的图像帧（main.py已转换为RGB）
-        
+        :param frame: frame in RGB format
         Returns:
             tuple: (landmarks, visual_frame)
-                - landmarks: MediaPipe检测到的姿态landmarks，如果未检测到则返回None
-                - visual_frame: 可视化后的帧（绘制了关键点和连接线）
+                - landmarks: landmarks detected by MediaPipe, or None if no pose detected
+                - visual_frame: visualized frame with detected landmarks (if enabled)
         """
         if getattr(self, 'disabled', False):
             raise RuntimeError(
@@ -105,16 +101,13 @@ class Detector:
                 "https://google.github.io/mediapipe/getting_started/python.html"
             )
 
-        # MediaPipe处理（frame已经是RGB格式）
         frame.flags.writeable = False
         results = self.pose.process(frame)
         frame.flags.writeable = True
-        
-        # 根据配置决定是否可视化
+
         if results.pose_landmarks:
             if not self.show_cam_capture:
-                frame[:] = 0  # 黑屏背景
-            # 绘制姿态landmarks
+                frame[:] = 0  # Set black background
             if self.visualize_landmarks:
                 mp_drawing = mp.solutions.drawing_utils
                 mp_drawing.draw_landmarks(frame, results.pose_landmarks, self.mp_pose.POSE_CONNECTIONS)
@@ -124,7 +117,6 @@ class Detector:
     
     def close(self):
         """
-        释放MediaPipe资源
         Release MediaPipe resources
         """
         if hasattr(self, 'pose') and self.pose:
