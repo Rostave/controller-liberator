@@ -19,6 +19,7 @@ Usage:
     detector = Detector(ctx)
     landmarks, visual_frame = detector.get_landmarks(rgb_frame)
 """
+import numpy as np
 
 try:
     import mediapipe as mp
