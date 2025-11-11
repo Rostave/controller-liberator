@@ -3,10 +3,11 @@ Group: Keyboard Liberators
 This program processes the pose data and maps it to control signals and send them to the virtual controller.
 """
 
+import math
 from typing import List
 from context import Context
-import math
-from presets import PresetManager
+from presets import Preset
+from utils import *
 
 
 class ControlFeature:
@@ -16,26 +17,23 @@ class ControlFeature:
     def __init__(self, ctx: Context):
         self.ctx = ctx
 
-        # Triggering parameters
-        self.torso_pitch: float = 0.0
-
         # Visualizing parameters
         self.hand_left_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
         self.hand_right_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
         self.hands_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
+        self.left_pressure: float = 0.0  # [0,1] left joystick input strength (left)
+        self.right_pressure: float = 0.0  # [0,1] left joystick input strength (right)
+        self.steer_angle: float = 0.0  # [-180,180] estimated steering angle in degrees
+
         self.brake_pressure: float = 0.0  # [0,1] brake trigger strength
         self.throttle_pressure: float = 0.0  # [0,1] throttle trigger strength
-        self.handbrake_active: bool = False
-        self.left_pressure: float = 0.0  # [0,1] right joystick input strength (left)
-        self.right_pressure: float = 0.0  # [0,1] right joystick input strength (right)
-        self.steer_angle: float = 0.0  # [-180,180] estimated steering angle in degrees
+        self.handbrake_active: bool = False  # whether handbrake is active
 
         # Control parameters
         # Steering sensitivity
-        self.steering_safe_angle = ctx.tkparam.get_scalar("steering safe angle", 7.0, 0.0, 30.0)
-        self.steering_left_border_angle = ctx.tkparam.get_scalar("steering left border", 45.0, 0.0, 80.0)
-        self.steering_right_border_angle = ctx.tkparam.get_scalar("steering right border", 45.0, 0.0, 80.0)
-        # self.steering_left_border_angle
+        self.steering_safe_angle = ctx.tkparam.scalar("steering safe angle", 7.0, 0.0, 30.0)
+        self.steering_left_border_angle = ctx.tkparam.scalar("steering left border", 45.0, 0.0, 80.0)
+        self.steering_right_border_angle = ctx.tkparam.scalar("steering right border", 45.0, 0.0, 80.0)
 
 
 class PoseControlMapper:
@@ -62,52 +60,29 @@ class PoseControlMapper:
         self._prev_menu_pressed = False
         self._prev_y_pressed = False
 
+        ctx.preset_mgr.register_preset_update_callback(self.__on_update_preset)
+
+    def __on_update_preset(self, preset: Preset) -> None:
+        self.ctx.tkparam.load_param_from_dict(preset.mapping)
+
     def extract_features(self, landmarks) -> ControlFeature:
         """
         Update extracted features from the given landmarks, and store them in the PoseFeature instance
         """
 
-        # Reset features to defaults first
         f = self.features
-        f.hand_left_center = [0.0, 0.0]
-        f.hand_right_center = [0.0, 0.0]
-        f.hands_center = [0.0, 0.0]
-
-        # default dynamic features
-        f.torso_pitch = 0.0  # positive = leaning forward, negative = leaning backward
-        f.left_fist = False
-        f.right_fist = False
-        f.hands_behind = False
-
         if landmarks is None:
             return f
 
-        def L(i):
-            """
-            Get i th landmark coordinates
-            """
-            lm = landmarks.landmark[i]
-            return lm.x, lm.y, lm.z
-
-        def avg(points):
-            n = len(points)
-            sx = sum(p[0] for p in points)
-            sy = sum(p[1] for p in points)
-            sz = sum(p[2] for p in points)
-            return sx / n, sy / n, sz / n
-
-        def clamp01(x:float):
-            return max(0.0, min(1.0, x))
-
-        # 计算左右手中心：对指定的手部关节点取平均，作为手部中心坐标
-        left_points = [L(i) for i in self.left_hand_indices]
-        right_points = [L(i) for i in self.right_hand_indices]
+        # Get center of hands
+        left_points = [L(landmarks, i) for i in self.left_hand_indices]
+        right_points = [L(landmarks, i) for i in self.right_hand_indices]
 
         lcx, lcy, lcz = avg(left_points)
         rcx, rcy, rcz = avg(right_points)
         f.hand_left_center = [1-lcx, lcy]
         f.hand_right_center = [1-rcx, rcy]
-        f.hands_center = [1 - (lcx+rcx)/2.0, (lcy+rcy)/2.0]
+        f.hands_center = [1-(lcx+rcx)/2.0, (lcy+rcy)/2.0]
 
         # Horizontal - 0 degree; Steer right to 90 degree; Steer left to -90
         f.steer_angle = math.degrees(math.atan2(rcx-lcx, rcy-lcy))+90.0
@@ -169,56 +144,13 @@ class PoseControlMapper:
         # return f
 
     def trigger_control(self):
-        # 将提取到的特征映射为虚拟手柄输入：触发器、摇杆、按键等
         """
         Trigger corresponding game control to the virtual controller based on the extracted features.
-
-        Mappings implemented:
-        1) torso_pitch -> right_trigger (lean forward) and left_trigger (lean backward)
-        2) angle between hands -> left joystick X axis
-        3) fist (either hand) -> START button (menu)
-        4) both hands swung behind -> Y button
         """
 
         gp = self.ctx.gamepad
         f = self.features
 
-        # gp.right_trigger(float(rt_value))
-        # gp.left_trigger(float(lt_value))
-
-    # --- 左摇杆X轴映射：根据双手相对连线的角度控制左右转向 ---
-    # 计算从左手到右手连线的角度，映射为[-1,1]区间
-        lx, ly = f.hand_left_center
-        rx, ry = f.hand_right_center
-        dx = rx - lx
-        dy = ry - ly
-        angle = math.atan2(dy, dx) if (dx != 0 or dy != 0) else 0.0
-        # map angle in [-pi/2,pi/2] to joystick [-1,1], apply steering scale
-        joy_x = max(-1.0, min(1.0, (angle / (math.pi / 2)) * self.steering_scale))
-        # 应用摇杆死区以避免抖动
-        if abs(joy_x) < self.joystick_deadzone:
-            joy_x = 0.0
-        # gp.left_joystick(float(joy_x), 0.0)
-
-        # --- 按键映射：握拳触发 START（菜单键），双手向后摆触发 Y 键 ---
-        menu_pressed = (f.left_fist or f.right_fist)
-        y_pressed = f.hands_behind
-
-        # START (menu)
-        if menu_pressed and not self._prev_menu_pressed:
-            ...
-            # gp.press_button(# gp.START)
-        if not menu_pressed and self._prev_menu_pressed:
-            ...
-            # gp.release_button(# gp.START)
-        self._prev_menu_pressed = menu_pressed
-
-        # Y button
-        if y_pressed and not self._prev_y_pressed:
-            ...
-            # gp.press_button(# gp.Y)
-        if not y_pressed and self._prev_y_pressed:
-            ...
-            # gp.release_button(# gp.Y)
-        self._prev_y_pressed = y_pressed
+        # steering control
+        gp.left_joystick(f.right_pressure - f.left_pressure, 0.0)
 

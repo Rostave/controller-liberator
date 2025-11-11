@@ -4,19 +4,17 @@ This program builds a graphical user interface for visualizing pose detection an
 When receiving function calls from the main loop, the GUI instance renders corresponding graphics to the screen.
 """
 
-from time import time as tm
 from typing import Optional
+import os
 import math
-
+from time import time as tm
 import pygame
 from pygame.color import Color
-import sys
-import ctypes
-import os
 
 from context import Context
 from mapping import ControlFeature
 from presets import Preset
+from utils import *
 
 
 class GUI:
@@ -34,50 +32,68 @@ class GUI:
         self.fps: float = fps
 
         pygame.init()
-        cfg = ctx.cfg["Window"]
-        self.caption = cfg["caption"]
+        win_cfg = ctx.cfg["Window"]
+        self.caption = win_cfg["caption"]
         pygame.display.set_caption(self.caption)
         self.win_resolution = self.reso
-        self.screen = pygame.display.set_mode(self.win_resolution)
+        self.screen = pygame.display.set_mode(self.win_resolution, pygame.SRCALPHA)
+
         self.clock = pygame.time.Clock()
-
-        # Set window transparency (Only for windows)
-        # self.__set_window_transparency()
-
-        # Timing parameters
-        self.show_caption_fps = cfg.getboolean("show_caption_fps")
         self.delta_time: float = 0.0
         self.running_time: float = 0.0
         self._running_start_time: float = tm()
 
-        # Smooth FPS
-        self._fps_accum_target: int = cfg.getint("smooth_fps_accum_frames")
         self._fps_accum_time: int = 0
         self._fps_accum_count: int = 0
         self._smoothed_fps: int = 0
 
-        self.__load_ui_icons()
+        self.calibration_mode = True
+        set_window_topmost(True)
+        self._set_calibration_mode(self.calibration_mode)
+        self._load_ui_icons()
 
-        self.show_cam_capture: bool = True
-        self.show_pose_detection: bool = True
-        self.fist_center_circle_radius: int = -1
-        self.fist_center_circle_color: Color = Color(255, 255, 255)
-        self.steer_wheel_fill_color: Color = Color(255, 255, 255)
-        self.wheel_rot_max_angle = cfg.getfloat("UI_wheel_rot_angle")
+        # do not close tkparam window
+        ctx.tkparam.root.protocol("WM_DELETE_WINDOW", fold_tkparam_win_on_close)
+
+        # Load configuration parameters
+        visual_cfg = ctx.cfg["Feature.visual"]
+        pref_cfg = ctx.cfg["Preferences"]
+        self.show_caption_fps = win_cfg.getboolean("show_caption_fps")
+        self._fps_accum_target: int = win_cfg.getint("smooth_fps_accum_frames")
+        self.wheel_rot_max_angle = visual_cfg.getfloat("ui_wheel_rot_max_angle")
+        self.fist_center_circle_radius: int = visual_cfg.getint("fist_center_circle_radius")
+        self.fist_center_circle_color: Color = Color(visual_cfg.get("fist_center_circle_color"))
+        self.steer_wheel_fill_color: Color = Color(visual_cfg.get("steer_wheel_fill_color"))
+        calibration_key = pref_cfg.get("calibration_mode_toggle_key").lower()
+        self.calibration_mode_toggle_key: int = key2pygame_mapping.get(calibration_key, pygame.K_BACKSLASH)
+
+        # Tkparam
+        self.show_cam_capture = ctx.tkparam.button_bool("show camera capture", True)
+        self.show_pose_estimation = ctx.tkparam.button_bool("show pose estimation", True)
 
         ctx.preset_mgr.register_preset_update_callback(self.__on_update_preset)
+
+    def _get_pos_from_per(self, per):
+        return per[0] * self.reso[0], per[1] * self.reso[1]
+
+    def _set_calibration_mode(self, mode: bool) -> None:
+        """Set calibration mode"""
+        self.calibration_mode = mode
+        set_window_transparency(not mode)
+        tkparam_win = self.ctx.tkparam.root
+        if mode:
+            tkparam_win.deiconify()
+        else:
+            tkparam_win.withdraw()
+        print(f"Calibration mode: {mode}")
 
     def __on_update_preset(self, preset: Preset) -> None:
         """
         Called when the active preset is updated.
         """
-        self.show_cam_capture = preset.visual["show_cam_capture"]
-        self.show_pose_detection = preset.visual["show_pose_estimation"]
-        self.fist_center_circle_radius = preset.visual["fist_center_circle_radius"]
-        self.fist_center_circle_color = Color(preset.visual["fist_center_circle_color"])
-        self.steer_wheel_fill_color = Color(preset.visual["steer_wheel_fill_color"])
+        self.ctx.tkparam.load_param_from_dict(preset.visual)
 
-    def __load_ui_icons(self) -> None:
+    def _load_ui_icons(self) -> None:
         """
         Load UI icons from UI_Icons folder and scale them.
         """
@@ -97,37 +113,6 @@ class GUI:
         except Exception as e:
             print(f"Cannot load UI icon {path}: {e}")
             return None
-
-    def __set_window_transparency(self) -> None:
-        """
-        Set window transparency on Windows platform.
-        """
-        if sys.platform == 'win32':
-            try:
-                # 获取窗口句柄
-                hwnd = pygame.display.get_wm_info()['window']
-
-                # Windows API 常量
-                GWL_EXSTYLE = -20
-                WS_EX_LAYERED = 0x80000
-                LWA_ALPHA = 0x2
-                LWA_COLORKEY = 0x1
-
-                # 设置窗口为分层窗口
-                _winlib = ctypes.windll.user32
-                _winlib.SetWindowLongA(hwnd, GWL_EXSTYLE,
-                                       _winlib.GetWindowLongA(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED)
-
-                # 方法1: 整体透明度 + 色键透明组合
-                # 先设置黑色为完全透明
-                colorkey = 0x000000  # 黑色 RGB(0,0,0)
-                # 然后设置整体窗口透明度，让组件也半透明
-                _winlib.SetLayeredWindowAttributes(hwnd, colorkey, 200, LWA_COLORKEY | LWA_ALPHA)
-                # 200是整体透明度 (0-255)，可以看到窗口后面的内容
-
-                print("窗口半透明已启用 (可以透视窗口)")
-            except Exception as e:
-                print(f"设置窗口透明失败: {e}")
 
     def clock_tick(self) -> float:
         """
@@ -170,27 +155,31 @@ class GUI:
         """
         Visualize the webcam capture to the screen.
         """
-        if not self.show_cam_capture and not self.show_pose_detection:
+        if not self.calibration_mode or (not self.show_cam_capture and not self.show_pose_estimation):
             return
         frame = pygame.surfarray.make_surface(np_frame)
         frame = pygame.transform.rotate(frame, -90)
         self.screen.blit(frame, (0, 0))
 
     def render_pose_features(self, f: ControlFeature):
+        if not self.calibration_mode:
+            return
+
         # Fists
-        pos_l = f.hand_left_center[0] * self.reso[0], f.hand_left_center[1] * self.reso[1]
-        pos_r = f.hand_right_center[0] * self.reso[0], f.hand_right_center[1] * self.reso[1]
-        pygame.draw.circle(
-            self.screen, self.fist_center_circle_color, pos_l, self.fist_center_circle_radius, 0)
-        pygame.draw.circle(
-            self.screen, self.fist_center_circle_color, pos_r, self.fist_center_circle_radius, 0)
+        pos_l = self._get_pos_from_per(f.hand_left_center)
+        pos_r = self._get_pos_from_per(f.hand_right_center)
+        if self.show_pose_estimation:
+            pygame.draw.circle(
+                self.screen, self.fist_center_circle_color, pos_l, self.fist_center_circle_radius, 0)
+            pygame.draw.circle(
+                self.screen, self.fist_center_circle_color, pos_r, self.fist_center_circle_radius, 0)
 
         # Draw virtual steer wheel
-        fists_center = (pos_l[0]+pos_r[0]) // 2, (pos_l[1]+pos_r[1]) // 2
         diameter = math.dist(pos_l, pos_r)
         scale_factor = diameter / self.steer_wheel_icon.get_width()
         scaled_wheel_icon = pygame.transform.rotozoom(self.steer_wheel_icon, -f.steer_angle, scale_factor)
-        rect = scaled_wheel_icon.get_rect(center=fists_center)
+        center_pos = self._get_pos_from_per(f.hands_center)
+        rect = scaled_wheel_icon.get_rect(center=center_pos)
         self.screen.blit(scaled_wheel_icon, rect)
 
     def render_game_controls(self, feat: ControlFeature) -> None:
@@ -412,11 +401,24 @@ class GUI:
             surface_pos = (btn['pos'][0] - btn_size // 2, btn['pos'][1] - btn_size // 2)
             self.screen.blit(btn_surface, surface_pos)
 
-    @staticmethod
-    def handle_events() -> bool:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+    def _save_tkparam_preset(self):
+        preset = self.ctx.active_preset
+        dump = self.ctx.tkparam.dump_param_to_dict()
+        for k in preset.visual.keys():
+            preset.visual[k] = dump[k]
+        for k in preset.mapping.keys():
+            preset.mapping[k] = dump[k]
+        self.ctx.preset_mgr.save_active_to_file()
+
+    def handle_events(self) -> bool:
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                if save_preset_on_close():
+                    self._save_tkparam_preset()
                 return False
+            if e.type == pygame.KEYDOWN:
+                if e.key == self.calibration_mode_toggle_key:
+                    self._set_calibration_mode(not self.calibration_mode)
         return True
 
     @staticmethod

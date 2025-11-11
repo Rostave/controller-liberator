@@ -28,7 +28,7 @@ RESO = camera.get(cv2.CAP_PROP_FRAME_WIDTH), camera.get(cv2.CAP_PROP_FRAME_HEIGH
 gui = GUI(ctx, RESO, FPS)
 detector = Detector(ctx)
 mapper = PoseControlMapper(ctx)
-gamepad = VGamepad(True)
+gamepad = VGamepad(skip=True)
 ctx.gamepad = gamepad
 preset_mgr.load_presets()
 
@@ -54,7 +54,7 @@ while True:
         feats = mapper.extract_features(landmarks)  # Extract pose features
         gui.render_pose_features(feats)  # Draw pose features on GUI
         gui.render_game_controls(feats)  # Draw game controls based on extracted features
-        # mapper.trigger_control()  # Map pose features to gamepad controls
+        mapper.trigger_control()  # Map pose features to gamepad controls
     else:
         gui.render_np_frame(frame)
 
@@ -64,5 +64,5 @@ while True:
 camera.release()
 gamepad.release()
 detector.close()
-gui.quit()
 ctx.close()
+gui.quit()

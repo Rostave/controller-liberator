@@ -74,16 +74,6 @@ class Detector:
             min_detection_confidence=cfg.getfloat("min_detection_confidence"),
             min_tracking_confidence=cfg.getfloat("min_tracking_confidence")
         )
-        
-        # Visualization settings (updated by preset callbacks)
-        self.visualize_landmarks: bool = True
-        self.show_cam_capture: bool = False
-        ctx.preset_mgr.register_preset_update_callback(self.__on_update_preset)
-    
-    def __on_update_preset(self, preset) -> None:
-        """Apply the new preset visual settings"""
-        self.visualize_landmarks = preset.visual["show_pose_estimation"]
-        self.show_cam_capture = preset.visual["show_cam_capture"]
 
     def get_landmarks(self, frame):
         """
@@ -105,10 +95,17 @@ class Detector:
         results = self.pose.process(frame)
         frame.flags.writeable = True
 
+        calibration_mode = self.ctx.gui.calibration_mode
+        show_cam_capture = self.ctx.gui.show_cam_capture
+        show_pose_estimation = self.ctx.gui.show_pose_estimation
+
         if results.pose_landmarks:
-            if not self.show_cam_capture:
+            if not calibration_mode:
+                return results.pose_landmarks, frame
+
+            if not show_cam_capture:
                 frame[:] = 0  # Set black background
-            if self.visualize_landmarks:
+            if show_pose_estimation:
                 mp_drawing = mp.solutions.drawing_utils
                 mp_drawing.draw_landmarks(frame, results.pose_landmarks, self.mp_pose.POSE_CONNECTIONS)
             return results.pose_landmarks, frame

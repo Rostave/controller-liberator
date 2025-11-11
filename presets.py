@@ -18,20 +18,14 @@ class Preset:
         """Preset name"""
 
         self.visual = {
-            "show_fps": True,  # Show in-screen real-time FPS text
-            "show_cam_capture": True,  # Show camera capture window
-            "show_pose_estimation": True,  # Visualize pose estimation landmarks
-            "fist_center_circle_radius": -1,
-            "fist_center_circle_color": "#FF0000FF",
-            "steer_wheel_fill_color": "#87CEFAFF"
+            "show camera capture": True,  # Show camera capture window
+            "show pose estimation": True,  # Visualize pose estimation landmarks
         }
 
         self.mapping = {
-            "max_pitch": 0.4,
-            "fist_thresh": 0.06,
-            "behind_thresh": 0.08,
-            "joystick_deadzone": 0.02,
-            "steering_scale": 1.0,
+            "steering safe angle": 7.0,
+            "steering left border": 45.0,
+            "steering right border": 45.0
         }
         """Mapping settings"""
 
@@ -160,7 +154,7 @@ if __name__ == "__main__":
     mgr = PresetManager(ctx)
     mgr.load_presets()
     print(mgr.list_presets())
-    mgr.active_preset.visual["show_fps"] = False
+    mgr.active_preset.visual["show camera capture"] = False
     mgr.save_active_to_new_file("test")
     del config, ctx, mgr
 
