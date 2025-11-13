@@ -30,18 +30,26 @@ class ControlFeature:
         self.throttle_pressure: float = 0.0  # [0,1] throttle trigger strength
         self.handbrake_active: bool = False  # whether handbrake is active
 
-        # Control parameters
-        # Steering sensitivity
-        self.steering_safe_angle = ctx.tkparam.scalar("steering safe angle", 7.0, 0.0, 30.0)
-        self.steering_left_border_angle = ctx.tkparam.scalar("steering left border", 45.0, 0.0, 80.0)
-        self.steering_right_border_angle = ctx.tkparam.scalar("steering right border", 45.0, 0.0, 80.0)
+        if check_os() == "Darwin":
+            self.steering_safe_angle: float = 0.0
+            self.steering_left_border_angle: float = 0.0
+            self.steering_right_border_angle: float = 0.0
+            self.throttle_dist_ratio_center: float = 0.0
+            self.throttle_dist_ratio_safe_dist: float = 0.0
+            self.throttle_dist_ratio_max_dist: float = 0.0
+        else:
+            # Control parameters
+            # Steering sensitivity
+            self.steering_safe_angle = ctx.tkparam.scalar("steering safe angle", 7.0, 0.0, 30.0)
+            self.steering_left_border_angle = ctx.tkparam.scalar("steering left border", 45.0, 0.0, 80.0)
+            self.steering_right_border_angle = ctx.tkparam.scalar("steering right border", 45.0, 0.0, 80.0)
 
-        # throttle and brake
-        # -max_dist ---- -safe_dist --- 0 --- safe_dist --- max_dist
-        # |<-     brake     ->|                 |<-  throttle  ->|
-        self.throttle_dist_ratio_center = ctx.tkparam.scalar("throttle measure center", 6.0, 0.0, 9.0)
-        self.throttle_dist_ratio_safe_dist = ctx.tkparam.scalar("throttle safe distance", 0.6, 0.0, 2.0)
-        self.throttle_dist_ratio_max_dist = ctx.tkparam.scalar("throttle max distance", 2.0, 0.0, 5.0)
+            # throttle and brake
+            # -max_dist ---- -safe_dist --- 0 --- safe_dist --- max_dist
+            # |<-     brake     ->|                 |<-  throttle  ->|
+            self.throttle_dist_ratio_center = ctx.tkparam.scalar("throttle measure center", 6.0, 0.0, 9.0)
+            self.throttle_dist_ratio_safe_dist = ctx.tkparam.scalar("throttle safe distance", 0.6, 0.0, 2.0)
+            self.throttle_dist_ratio_max_dist = ctx.tkparam.scalar("throttle max distance", 2.0, 0.0, 5.0)
 
 
 class PoseControlMapper:
@@ -72,7 +80,15 @@ class PoseControlMapper:
         ctx.preset_mgr.register_preset_update_callback(self.__on_update_preset)
 
     def __on_update_preset(self, preset: Preset) -> None:
-        self.ctx.tkparam.load_param_from_dict(preset.mapping)
+        if check_os() == "Darwin":
+            self.steering_safe_angle: float = preset.mapping["steering safe angle"]
+            self.steering_left_border_angle: float = preset.mapping["steering left border"]
+            self.steering_right_border_angle: float = preset.mapping["steering right border"]
+            self.throttle_dist_ratio_center: float = preset.mapping["throttle measure center"]
+            self.throttle_dist_ratio_safe_dist: float = preset.mapping["throttle safe distance"]
+            self.throttle_dist_ratio_max_dist: float = preset.mapping["throttle max distance"]
+        else:
+            self.ctx.tkparam.load_param_from_dict(preset.mapping)
 
     def extract_features(self, landmarks) -> ControlFeature:
         """

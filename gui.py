@@ -53,7 +53,8 @@ class GUI:
         self._load_ui_icons()
 
         # do not close tkparam window
-        ctx.tkparam.root.protocol("WM_DELETE_WINDOW", fold_tkparam_win_on_close)
+        if check_os() != "Darwin":
+            ctx.tkparam.root.protocol("WM_DELETE_WINDOW", fold_tkparam_win_on_close)
 
         # Load configuration parameters
         visual_cfg = ctx.cfg["Feature.visual"]
@@ -68,8 +69,12 @@ class GUI:
         self.calibration_mode_toggle_key: int = key2pygame_mapping.get(calibration_key, pygame.K_BACKSLASH)
 
         # Tkparam
-        self.show_cam_capture = ctx.tkparam.button_bool("show camera capture", True)
-        self.show_pose_estimation = ctx.tkparam.button_bool("show pose estimation", True)
+        if check_os() == "Darwin":
+            self.show_cam_capture: float = 0.0
+            self.show_pose_estimation: float = 0.0
+        else:
+            self.show_cam_capture = ctx.tkparam.button_bool("show camera capture", True)
+            self.show_pose_estimation = ctx.tkparam.button_bool("show pose estimation", True)
 
         ctx.preset_mgr.register_preset_update_callback(self.__on_update_preset)
 
@@ -78,6 +83,8 @@ class GUI:
 
     def _set_calibration_mode(self, mode: bool) -> None:
         """Set calibration mode"""
+        if check_os() == "Darwin":
+            return
         self.calibration_mode = mode
         set_window_transparency(not mode)
         tkparam_win = self.ctx.tkparam.root
@@ -91,7 +98,11 @@ class GUI:
         """
         Called when the active preset is updated.
         """
-        self.ctx.tkparam.load_param_from_dict(preset.visual)
+        if check_os() == "Darwin":
+            self.show_cam_capture: float = preset.visual["show camera capture"]
+            self.show_pose_estimation: float = preset.visual["show pose estimation"]
+        else:
+            self.ctx.tkparam.load_param_from_dict(preset.visual)
 
     def _load_ui_icons(self) -> None:
         """
@@ -402,6 +413,8 @@ class GUI:
             self.screen.blit(btn_surface, surface_pos)
 
     def _save_tkparam_preset(self):
+        if check_os() == "Darwin":
+            return
         preset = self.ctx.active_preset
         dump = self.ctx.tkparam.dump_param_to_dict()
         for k in preset.visual.keys():
