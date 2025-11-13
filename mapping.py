@@ -21,10 +21,11 @@ class ControlFeature:
         self.hand_left_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
         self.hand_right_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
         self.hands_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
+        self.steer_angle: float = 0.0  # [-180,180] estimated steering angle in degrees
+        self.torso_pitch: float = 0.0  # estimated torso pitch in degrees
+
         self.left_pressure: float = 0.0  # [0,1] left joystick input strength (left)
         self.right_pressure: float = 0.0  # [0,1] left joystick input strength (right)
-        self.steer_angle: float = 0.0  # [-180,180] estimated steering angle in degrees
-
         self.brake_pressure: float = 0.0  # [0,1] brake trigger strength
         self.throttle_pressure: float = 0.0  # [0,1] throttle trigger strength
         self.handbrake_active: bool = False  # whether handbrake is active
@@ -34,6 +35,13 @@ class ControlFeature:
         self.steering_safe_angle = ctx.tkparam.scalar("steering safe angle", 7.0, 0.0, 30.0)
         self.steering_left_border_angle = ctx.tkparam.scalar("steering left border", 45.0, 0.0, 80.0)
         self.steering_right_border_angle = ctx.tkparam.scalar("steering right border", 45.0, 0.0, 80.0)
+
+        # throttle and brake
+        # -max_dist ---- -safe_dist --- 0 --- safe_dist --- max_dist
+        # |<-     brake     ->|                 |<-  throttle  ->|
+        self.throttle_dist_ratio_center = ctx.tkparam.scalar("throttle measure center", 6.0, 0.0, 9.0)
+        self.throttle_dist_ratio_safe_dist = ctx.tkparam.scalar("throttle safe distance", 0.6, 0.0, 2.0)
+        self.throttle_dist_ratio_max_dist = ctx.tkparam.scalar("throttle max distance", 2.0, 0.0, 5.0)
 
 
 class PoseControlMapper:
@@ -48,7 +56,8 @@ class PoseControlMapper:
     hand_indices = [15, 16, 17, 18, 19, 20, 21, 22]
     body_left_indices = [11, 23]
     body_right_indices = [12, 24]
-    body_up_indices = [11, 12]
+    body_shoulder_indices = [11, 12]
+    body_hip_indices = [23, 24]
     body_indices = [11, 12, 23, 24]
 
     def __init__(self, ctx: Context):
@@ -92,56 +101,40 @@ class PoseControlMapper:
         f.right_pressure = clamp01((f.steer_angle-safe_angle) / f.steering_right_border_angle.get()) \
             if f.steer_angle > 0 else 0.0
 
-        return f
+        # Throttle and brake
+        shoulder_pts = [L(landmarks, i) for i in self.body_shoulder_indices]
+        hip_pts = [L(landmarks, i) for i in self.body_hip_indices]
 
-        # 躯干俯仰角估算：使用双肩与双臀（或髋）中点，估计前倾/后仰角度
-        # shoulder_pts = [L(i) for i in self.body_up_indices]
-        # hip_pts = [L(i) for i in [23, 24]]
+        len_s = dist_pow(*shoulder_pts, e=4)
+        len_h = dist_pow(*hip_pts, e=4)
+        throttle_ratio = len_s / len_h
+
+        # # pitch: positive when shoulders are closer (leaning forward)
         # sx, sy, sz = avg(shoulder_pts)
         # hx, hy, hz = avg(hip_pts)
-        #
-        # # vector from hips to shoulders
-        # vx = sx - hx
+        # # vector from hips center to shoulders center
         # vy = sy - hy
         # vz = sz - hz
-        #
-        # # pitch: positive when shoulders are closer (leaning forward)
         # # use atan2(-vz, vy) so that more negative vz (shoulders closer) => positive pitch
-        # f.torso_pitch = math.atan2(-vz, vy) if (vy != 0 or vz != 0) else 0.0
-        #
-        # # 握拳检测：通过指尖与手腕的二维距离判断是否握拳（距离较小表示握拳）
-        # # 指尖索引（近似）：左手19,21；右手20,22
-        # def dist(a, b):
-        #     return math.hypot(a[0] - b[0], a[1] - b[1])
-        #
-        # # left wrist is index 15, right wrist 16
-        # lw = L(15)
-        # rw = L(16)
-        # left_tips = [L(19), L(21)]
-        # right_tips = [L(20), L(22)]
-        # left_avg_tip = ((left_tips[0][0] + left_tips[1][0]) / 2.0, (left_tips[0][1] + left_tips[1][1]) / 2.0)
-        # right_avg_tip = ((right_tips[0][0] + right_tips[1][0]) / 2.0, (right_tips[0][1] + right_tips[1][1]) / 2.0)
-        #
-        # left_wrist_xy = (lw[0], lw[1])
-        # right_wrist_xy = (rw[0], rw[1])
-        #
-        # left_tip_dist = dist(left_avg_tip, left_wrist_xy)
-        # right_tip_dist = dist(right_avg_tip, right_wrist_xy)
-        #
-        # # 使用配置的阈值判断是否握拳
-        # fist_thresh = self.ctx.active_preset.mapping["fist_thresh"]
-        # f.left_fist = left_tip_dist < fist_thresh
-        # f.right_fist = right_tip_dist < fist_thresh
-        #
-        # # 双手向后摆检测：比较手的z值与躯干中点z，若都显著更大则视为向后摆
-        # behind_thresh = self.ctx.active_preset.mapping["behind_thresh"]
-        # body_mid_z = (sz + hz) / 2.0
-        # if (lcz - body_mid_z) > behind_thresh and (rcz - body_mid_z) > behind_thresh:
-        #     f.hands_behind = True
-        # else:
-        #     f.hands_behind = False
-        #
-        # return f
+        # torso_pitch_radian = math.atan2(-vz, vy) if (vy != 0 or vz != 0) else 0.0
+        # f.torso_pitch = math.degrees(torso_pitch_radian)
+        # print(f"{len_s/len_h}, {f.torso_pitch}")
+
+        # Normalize
+        throttle_center = f.throttle_dist_ratio_center.get()
+        throttle_dist = f.throttle_dist_ratio_max_dist.get()
+        throttle_safe_dist = f.throttle_dist_ratio_safe_dist.get()
+        throttle_real_dist = throttle_dist - throttle_safe_dist
+        throttle_thresh = throttle_center + throttle_safe_dist
+        brake_thresh = throttle_center - throttle_safe_dist
+        if throttle_ratio >= throttle_thresh:  # throttling
+            f.throttle_pressure = clamp01((throttle_ratio - throttle_thresh) / throttle_real_dist)
+            f.brake_pressure = 0.0
+        elif throttle_ratio <= brake_thresh:  # braking
+            f.throttle_pressure = 0.0
+            f.brake_pressure = clamp01((brake_thresh - throttle_ratio) / throttle_real_dist)
+
+        return f
 
     def trigger_control(self):
         """

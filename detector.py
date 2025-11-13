@@ -110,6 +110,8 @@ class Detector:
                 mp_drawing.draw_landmarks(frame, results.pose_landmarks, self.mp_pose.POSE_CONNECTIONS)
             return results.pose_landmarks, frame
         else:
+            if not show_cam_capture:
+                frame[:] = 0
             return None, frame
     
     def close(self):

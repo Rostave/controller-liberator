@@ -204,7 +204,7 @@ class GUI:
         # 1. 绘制按钮组（Y, X, B, A）在下方
         button_x = base_x + 60
         button_y = base_y + 180
-        self.__draw_button_cluster(button_x, button_y)
+        # self.__draw_button_cluster(button_x, button_y)
 
         # 2. 绘制踏板在按钮上方
         # 刹车在左边（再往左移）

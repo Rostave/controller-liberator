@@ -23,9 +23,11 @@ config.read('sysconfig.ini')
 ctx = Context(config)
 preset_mgr = PresetManager(ctx)
 camera = cv2.VideoCapture(0)
-FPS = camera.get(cv2.CAP_PROP_FPS)
-RESO = camera.get(cv2.CAP_PROP_FRAME_WIDTH), camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
-gui = GUI(ctx, RESO, FPS)
+CAP_SETTING = [(640, 480), 30]  # [resolution, fps]
+# RESO = [(1280, 720), 30]
+camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAP_SETTING[0][0])
+camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAP_SETTING[0][1])
+gui = GUI(ctx, CAP_SETTING[0], CAP_SETTING[1])
 detector = Detector(ctx)
 mapper = PoseControlMapper(ctx)
 gamepad = VGamepad(skip=True)
@@ -47,10 +49,10 @@ while True:
         break
 
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Turn BGR image format to RGB
-    landmarks, visual_pose = detector.get_landmarks(frame)  # Detect pose landmarks
+    landmarks, frame = detector.get_landmarks(frame)  # Detect pose landmarks
 
     if landmarks:
-        gui.render_np_frame(visual_pose)  # Draw webcam capture
+        gui.render_np_frame(frame)  # Draw webcam capture
         feats = mapper.extract_features(landmarks)  # Extract pose features
         gui.render_pose_features(feats)  # Draw pose features on GUI
         gui.render_game_controls(feats)  # Draw game controls based on extracted features

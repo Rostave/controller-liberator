@@ -25,7 +25,10 @@ class Preset:
         self.mapping = {
             "steering safe angle": 7.0,
             "steering left border": 45.0,
-            "steering right border": 45.0
+            "steering right border": 45.0,
+            "throttle measure center": 6.0,
+            "throttle safe distance": 0.6,
+            "throttle max distance": 2.0,
         }
         """Mapping settings"""
 

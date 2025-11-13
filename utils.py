@@ -2,10 +2,12 @@
 Group: Keyboard Liberators
 This module contains utility functions
 """
+import math
 import sys
 import pygame
 import ctypes
 from tkinter import messagebox
+from typing import Union, List
 
 
 def L(landmarks, i):
@@ -27,15 +29,20 @@ def avg(landmark_points):
     return sx / n, sy / n, sz / n
 
 
-def clamp01(x: float):
+def clamp01(x: float) -> float:
     """
     Clamp x to the range [0, 1]
     """
     return max(0.0, min(1.0, x))
 
 
+def dist_pow(p1: Union[List, tuple], p2: Union[List, tuple], e) -> float:
+    return ((p1[0]-p2[0])**e + (p1[1]-p2[1])**e) / e
+
+
 def set_window_topmost(set_topmost: bool) -> None:
     """Set window topmost on Windows platform."""
+    # TODO: not work!
     hwnd = pygame.display.get_wm_info()['window']
     if set_topmost:
         ctypes.windll.user32.SetWindowPos(hwnd, -1, 0, 0, 0, 0, 0x0003)
@@ -115,4 +122,3 @@ def fold_tkparam_win_on_close():
 
 def save_preset_on_close() -> bool:
     return messagebox.askyesno("Save preset?", "Do you want to save the current preset?")
-

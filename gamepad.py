@@ -39,6 +39,10 @@ class VGamepad:
     def __init__(self, skip=False):
         if not skip and _HAS_VGAMEPAD:
             self._gamepad = vg.VX360Gamepad()
+
+            # For testing only
+            # self.right_trigger(0.8)
+            # print("Force throttling")
         else:
             self._gamepad = None
 
