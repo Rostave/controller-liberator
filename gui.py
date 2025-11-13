@@ -53,7 +53,8 @@ class GUI:
         self._load_ui_icons()
 
         # do not close tkparam window
-        ctx.tkparam.root.protocol("WM_DELETE_WINDOW", fold_tkparam_win_on_close)
+        if check_os() != "Darwin":
+            ctx.tkparam.root.protocol("WM_DELETE_WINDOW", fold_tkparam_win_on_close)
 
         # Load configuration parameters
         visual_cfg = ctx.cfg["Feature.visual"]
@@ -68,8 +69,12 @@ class GUI:
         self.calibration_mode_toggle_key: int = key2pygame_mapping.get(calibration_key, pygame.K_BACKSLASH)
 
         # Tkparam
-        self.show_cam_capture = ctx.tkparam.button_bool("show camera capture", True)
-        self.show_pose_estimation = ctx.tkparam.button_bool("show pose estimation", True)
+        if check_os() == "Darwin":
+            self.show_cam_capture: float = 0.0
+            self.show_pose_estimation: float = 0.0
+        else:
+            self.show_cam_capture = ctx.tkparam.button_bool("show camera capture", True)
+            self.show_pose_estimation = ctx.tkparam.button_bool("show pose estimation", True)
 
         ctx.preset_mgr.register_preset_update_callback(self.__on_update_preset)
 
@@ -78,6 +83,8 @@ class GUI:
 
     def _set_calibration_mode(self, mode: bool) -> None:
         """Set calibration mode"""
+        if check_os() == "Darwin":
+            return
         self.calibration_mode = mode
         set_window_transparency(not mode)
         tkparam_win = self.ctx.tkparam.root
@@ -91,7 +98,11 @@ class GUI:
         """
         Called when the active preset is updated.
         """
-        self.ctx.tkparam.load_param_from_dict(preset.visual)
+        if check_os() == "Darwin":
+            self.show_cam_capture: float = preset.visual["show camera capture"]
+            self.show_pose_estimation: float = preset.visual["show pose estimation"]
+        else:
+            self.ctx.tkparam.load_param_from_dict(preset.visual)
 
     def _load_ui_icons(self) -> None:
         """
@@ -168,11 +179,6 @@ class GUI:
         # Fists
         pos_l = self._get_pos_from_per(f.hand_left_center)
         pos_r = self._get_pos_from_per(f.hand_right_center)
-        if self.show_pose_estimation:
-            pygame.draw.circle(
-                self.screen, self.fist_center_circle_color, pos_l, self.fist_center_circle_radius, 0)
-            pygame.draw.circle(
-                self.screen, self.fist_center_circle_color, pos_r, self.fist_center_circle_radius, 0)
 
         # Draw virtual steer wheel
         diameter = math.dist(pos_l, pos_r)
@@ -181,6 +187,21 @@ class GUI:
         center_pos = self._get_pos_from_per(f.hands_center)
         rect = scaled_wheel_icon.get_rect(center=center_pos)
         self.screen.blit(scaled_wheel_icon, rect)
+
+        fist_center = (pos_l[0]+pos_r[0])//2, (pos_l[1]+pos_r[1])//2
+        if self.show_pose_estimation:
+            pygame.draw.circle(
+                self.screen, self.fist_center_circle_color, pos_l, self.fist_center_circle_radius, 0)
+            pygame.draw.circle(
+                self.screen, self.fist_center_circle_color, pos_r, self.fist_center_circle_radius, 0)
+            r: float = self.ctx.mapper.features.brake_radius_min * self.reso[0]
+            pygame.draw.circle(self.screen, self.fist_center_circle_color, fist_center, r, 1)
+            r = self.ctx.mapper.features.brake_radius_max * self.reso[0]
+            pygame.draw.circle(self.screen, self.fist_center_circle_color, fist_center, r, 1)
+            r = self.ctx.mapper.features.throttle_radius_min * self.reso[0]
+            pygame.draw.circle(self.screen, self.fist_center_circle_color, fist_center, r, 1)
+            r = self.ctx.mapper.features.throttle_radius_max * self.reso[0]
+            pygame.draw.circle(self.screen, self.fist_center_circle_color, fist_center, r, 1)
 
     def render_game_controls(self, feat: ControlFeature) -> None:
         self.__render_game_controls(feat.brake_pressure, feat.throttle_pressure, feat.handbrake_active,
@@ -402,6 +423,8 @@ class GUI:
             self.screen.blit(btn_surface, surface_pos)
 
     def _save_tkparam_preset(self):
+        if check_os() == "Darwin":
+            return
         preset = self.ctx.active_preset
         dump = self.ctx.tkparam.dump_param_to_dict()
         for k in preset.visual.keys():

@@ -22,7 +22,7 @@ class ControlFeature:
         self.hand_right_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
         self.hands_center: List = [0.0, 0.0]  # [0,1] uniformed hands center in pygame coordinate
         self.steer_angle: float = 0.0  # [-180,180] estimated steering angle in degrees
-        self.torso_pitch: float = 0.0  # estimated torso pitch in degrees
+        self.fist_diameter: float = 0.0  # diameter of a circle made by two fists
 
         self.left_pressure: float = 0.0  # [0,1] left joystick input strength (left)
         self.right_pressure: float = 0.0  # [0,1] left joystick input strength (right)
@@ -30,18 +30,35 @@ class ControlFeature:
         self.throttle_pressure: float = 0.0  # [0,1] throttle trigger strength
         self.handbrake_active: bool = False  # whether handbrake is active
 
-        # Control parameters
-        # Steering sensitivity
-        self.steering_safe_angle = ctx.tkparam.scalar("steering safe angle", 7.0, 0.0, 30.0)
-        self.steering_left_border_angle = ctx.tkparam.scalar("steering left border", 45.0, 0.0, 80.0)
-        self.steering_right_border_angle = ctx.tkparam.scalar("steering right border", 45.0, 0.0, 80.0)
+        if check_os() == "Darwin":
+            self.steering_safe_angle: float = 0.0
+            self.steering_left_border_angle: float = 0.0
+            self.steering_right_border_angle: float = 0.0
+            # self.throttle_dist_ratio_center: float = 0.0
+            # self.throttle_dist_ratio_safe_dist: float = 0.0
+            # self.throttle_dist_ratio_max_dist: float = 0.0
+            self.brake_radius_min: float = 0.0
+            self.brake_radius_max: float = 0.0
+            self.throttle_radius_min: float = 0.0
+            self.throttle_radius_max: float = 0.0
+        else:
+            # Control parameters
+            # Steering sensitivity
+            self.steering_safe_angle = ctx.tkparam.scalar("steering safe angle", 7.0, 0.0, 30.0)
+            self.steering_left_border_angle = ctx.tkparam.scalar("steering left border", 45.0, 0.0, 80.0)
+            self.steering_right_border_angle = ctx.tkparam.scalar("steering right border", 45.001, 0.0, 80.0)
 
-        # throttle and brake
-        # -max_dist ---- -safe_dist --- 0 --- safe_dist --- max_dist
-        # |<-     brake     ->|                 |<-  throttle  ->|
-        self.throttle_dist_ratio_center = ctx.tkparam.scalar("throttle measure center", 6.0, 0.0, 9.0)
-        self.throttle_dist_ratio_safe_dist = ctx.tkparam.scalar("throttle safe distance", 0.6, 0.0, 2.0)
-        self.throttle_dist_ratio_max_dist = ctx.tkparam.scalar("throttle max distance", 2.0, 0.0, 5.0)
+            # throttle and brake
+            # -max_dist ---- -safe_dist --- 0 --- safe_dist --- max_dist
+            # |<-     brake     ->|                 |<-  throttle  ->|
+            # self.throttle_dist_ratio_center = ctx.tkparam.scalar("throttle measure center", 6.0, 0.0, 9.0)
+            # self.throttle_dist_ratio_safe_dist = ctx.tkparam.scalar("throttle safe distance", 0.6, 0.0, 2.0)
+            # self.throttle_dist_ratio_max_dist = ctx.tkparam.scalar("throttle max distance", 2.0, 0.0, 5.0)
+            self.brake_radius_min = ctx.tkparam.scalar("brake radius min", 6.0, 0.0, 500.0)
+
+            self.brake_radius_max = ctx.tkparam.scalar("brake radius max", 6.001, 0.0, 500.0)
+            self.throttle_radius_min = ctx.tkparam.scalar("throttle radius min", 6.002, 0.0, 500.0)
+            self.throttle_radius_max = ctx.tkparam.scalar("throttle radius max", 6.003, 0.0, 500.0)
 
 
 class PoseControlMapper:
@@ -58,6 +75,7 @@ class PoseControlMapper:
     body_right_indices = [12, 24]
     body_shoulder_indices = [11, 12]
     body_hip_indices = [23, 24]
+    mouth_indices = [9, 10]
     body_indices = [11, 12, 23, 24]
 
     def __init__(self, ctx: Context):
@@ -72,7 +90,20 @@ class PoseControlMapper:
         ctx.preset_mgr.register_preset_update_callback(self.__on_update_preset)
 
     def __on_update_preset(self, preset: Preset) -> None:
-        self.ctx.tkparam.load_param_from_dict(preset.mapping)
+        if check_os() == "Darwin":
+            f = self.features
+            f.steering_safe_angle = preset.mapping["steering safe angle"]
+            f.steering_left_border_angle = preset.mapping["steering left border"]
+            f.steering_right_border_angle = preset.mapping["steering right border"]
+            # f.throttle_dist_ratio_center = preset.mapping["throttle measure center"]
+            # f.throttle_dist_ratio_safe_dist = preset.mapping["throttle safe distance"]
+            # f.throttle_dist_ratio_max_dist = preset.mapping["throttle max distance"]
+            f.brake_radius_min = preset.mapping["brake radius min"]
+            f.brake_radius_max = preset.mapping["brake radius max"]
+            f.throttle_radius_min = preset.mapping["throttle radius min"]
+            f.throttle_radius_max = preset.mapping["throttle radius max"]
+        else:
+            self.ctx.tkparam.load_param_from_dict(preset.mapping)
 
     def extract_features(self, landmarks) -> ControlFeature:
         """
@@ -95,44 +126,39 @@ class PoseControlMapper:
 
         # Horizontal - 0 degree; Steer right to 90 degree; Steer left to -90
         f.steer_angle = math.degrees(math.atan2(rcx-lcx, rcy-lcy))+90.0
-        safe_angle = f.steering_safe_angle.get()
-        f.left_pressure = clamp01((-f.steer_angle-safe_angle) / f.steering_left_border_angle.get())\
+        safe_angle = f.steering_safe_angle
+        f.left_pressure = clamp01((-f.steer_angle-safe_angle) / f.steering_left_border_angle)\
             if f.steer_angle < 0 else 0.0
-        f.right_pressure = clamp01((f.steer_angle-safe_angle) / f.steering_right_border_angle.get()) \
+        f.right_pressure = clamp01((f.steer_angle-safe_angle) / f.steering_right_border_angle) \
             if f.steer_angle > 0 else 0.0
 
         # Throttle and brake
-        shoulder_pts = [L(landmarks, i) for i in self.body_shoulder_indices]
-        hip_pts = [L(landmarks, i) for i in self.body_hip_indices]
-
-        len_s = dist_pow(*shoulder_pts, e=4)
-        len_h = dist_pow(*hip_pts, e=4)
-        throttle_ratio = len_s / len_h
-
-        # # pitch: positive when shoulders are closer (leaning forward)
-        # sx, sy, sz = avg(shoulder_pts)
-        # hx, hy, hz = avg(hip_pts)
-        # # vector from hips center to shoulders center
-        # vy = sy - hy
-        # vz = sz - hz
-        # # use atan2(-vz, vy) so that more negative vz (shoulders closer) => positive pitch
-        # torso_pitch_radian = math.atan2(-vz, vy) if (vy != 0 or vz != 0) else 0.0
-        # f.torso_pitch = math.degrees(torso_pitch_radian)
-        # print(f"{len_s/len_h}, {f.torso_pitch}")
-
-        # Normalize
-        throttle_center = f.throttle_dist_ratio_center.get()
-        throttle_dist = f.throttle_dist_ratio_max_dist.get()
-        throttle_safe_dist = f.throttle_dist_ratio_safe_dist.get()
-        throttle_real_dist = throttle_dist - throttle_safe_dist
-        throttle_thresh = throttle_center + throttle_safe_dist
-        brake_thresh = throttle_center - throttle_safe_dist
-        if throttle_ratio >= throttle_thresh:  # throttling
-            f.throttle_pressure = clamp01((throttle_ratio - throttle_thresh) / throttle_real_dist)
-            f.brake_pressure = 0.0
-        elif throttle_ratio <= brake_thresh:  # braking
+        fist_dist = math.dist(f.hand_left_center, f.hand_right_center)
+        fist_radius = fist_dist * 0.5
+        if fist_radius < f.brake_radius_max:  # brake
+            f.brake_pressure = clamp01((f.brake_radius_max - fist_radius) / (f.brake_radius_max - f.brake_radius_min))
             f.throttle_pressure = 0.0
-            f.brake_pressure = clamp01((brake_thresh - throttle_ratio) / throttle_real_dist)
+        if fist_radius > f.throttle_radius_min:  # throttle
+            f.throttle_pressure = clamp01((fist_radius - f.throttle_radius_min) / (f.throttle_radius_max - f.throttle_radius_min))
+            f.brake_pressure = 0.0
+
+        # shoulder_pts = [L(landmarks, i) for i in self.body_shoulder_indices]
+        # hip_pts = [L(landmarks, i) for i in self.body_hip_indices]
+        # len_s = dist_pow(*shoulder_pts, e=4)
+        # len_h = dist_pow(*hip_pts, e=4)
+        # throttle_ratio = len_s / len_h
+        # throttle_center = f.throttle_dist_ratio_center
+        # throttle_dist = f.throttle_dist_ratio_max_dist
+        # throttle_safe_dist = f.throttle_dist_ratio_safe_dist
+        # throttle_real_dist = throttle_dist - throttle_safe_dist
+        # throttle_thresh = throttle_center + throttle_safe_dist
+        # brake_thresh = throttle_center - throttle_safe_dist
+        # if throttle_ratio >= throttle_thresh:  # throttling
+        #     f.throttle_pressure = clamp01((throttle_ratio - throttle_thresh) / throttle_real_dist)
+        #     f.brake_pressure = 0.0
+        # elif throttle_ratio <= brake_thresh:  # braking
+        #     f.throttle_pressure = 0.0
+        #     f.brake_pressure = clamp01((brake_thresh - throttle_ratio) / throttle_real_dist)
 
         return f
 
@@ -145,9 +171,9 @@ class PoseControlMapper:
         f = self.features
 
         # steering control
-        gp.left_joystick(f.right_pressure - f.left_pressure, 0.0)
+        gp.steer(f.right_pressure - f.left_pressure)
 
         # throttle and brake
-        gp.right_trigger(f.throttle_pressure)
-        gp.left_trigger(f.brake_pressure)
+        gp.throttle(f.throttle_pressure)
+        gp.brake(f.brake_pressure)
 

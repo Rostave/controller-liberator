@@ -1,7 +1,9 @@
 """
 Group: Keyboard Liberators
 """
-from tkparam import TKParamWindow
+from utils import check_os
+if check_os() != "Darwin":
+    from tkparam import TKParamWindow
 
 
 class Context:
@@ -15,7 +17,10 @@ class Context:
         self.preset_mgr = None  # GUI settings reference
         self.mapper = None  # pose-control mapper instance
         self.gamepad = None  # virtual gamepad reference
-        self.tkparam = TKParamWindow(title="Keyboard Liberators Calibration")  # tkparam window reference
+        if check_os() != "Darwin":
+            self.tkparam = TKParamWindow(title="Keyboard Liberators Calibration")  # tkparam window reference
+        else:
+            self.tkparam = None
 
     @property
     def active_preset(self):
