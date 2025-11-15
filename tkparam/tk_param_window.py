@@ -57,7 +57,7 @@ class TKParamWindow:
                range_min: float = None,
                range_max: float = None,
                is_int: bool = False,
-               group: str = "") \
+               ) \
             -> TkScalar:
         """
         get a scalar parameter from the window
@@ -66,7 +66,7 @@ class TKParamWindow:
         :param range_min: minimum value
         :param range_max: maximum value
         :param is_int: is integer or float
-        :param group: grouping hierarchy, leave empty for default; use '/' to separate hierarchy
+        # :param group: grouping hierarchy, leave empty for default; use '/' to separate hierarchy
         :return: the scalar parameter, using TkScalar.get() to get the value
         """
         self._check_name_duplication(param_name)
@@ -79,19 +79,37 @@ class TKParamWindow:
                     param_name: str,
                     default_value: bool = True,
                     on_change: Callable[[bool], None] = None,
-                    group: str = "") \
+                    ) \
             -> TkBoolBtn:
         """
-        get a button parameter from the window
+        get a boolean button parameter from the window
         :param param_name: parameter name
         :param default_value: default value
         :param on_change: callback function when the button is clicked
-        :param group: grouping hierarchy, leave empty for default; use '/' to separate hierarchy
+        # :param group: grouping hierarchy, leave empty for default; use '/' to separate hierarchy
         :return: the button parameter, using TkBoolBtn.get() to get the value
         """
         self._check_name_duplication(param_name)
         data_type = TKDataType.BOOL
         param = TK_PARAM_SCALAR_MAP[data_type](self.root, param_name, default_value, on_change)
+        self.params[param_name] = param
+        return param
+
+    def button(self,
+               param_name: str,
+               on_change: Callable,
+               ) \
+            -> TkBoolBtn:
+        """
+        get a button parameter from the window
+        :param param_name: parameter name
+        :param on_change: callback function when the button is clicked
+        # :param group: grouping hierarchy, leave empty for default; use '/' to separate hierarchy
+        :return: the button parameter, using TkBoolBtn.get() to get the value
+        """
+        self._check_name_duplication(param_name)
+        data_type = TKDataType.BUTTON
+        param = TK_PARAM_SCALAR_MAP[data_type](self.root, param_name, on_change)
         self.params[param_name] = param
         return param
 
