@@ -17,17 +17,13 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h1 align="center">Keyboard Liberator</h1>
-  <h4>Liberate your keyboard in unexpected ways and achieve a novel and smooth gaming experience</h4>
+  <h1 align="center">Controller Liberator</h1>
+  <h4>Liberate your controller in unexpected ways and achieve a novel and smooth gaming experience</h4>
   <br />
 </div>
 
--------------------
 
-## Screenshots
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+![main](Doc/imgs/1.png)
 
 
 ## Introduction
@@ -60,15 +56,13 @@ python main.py
 
 
 <!-- CONTRIBUTING -->
-## Contributing
+## Contributors
+
+<a href="https://github.com/Rostave/controller-liberator/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Rostave/controller-liberator" alt="contrib.rocks image" />
+</a>
 
 Every group member contribute equally to the project.
-
-### Contributors:
-
-<a href="https://github.com/Rostave/keyboard-liberator/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Rostave/keyboard-liberator" alt="contrib.rocks image" />
-</a>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -86,16 +80,11 @@ Unlicensed currently.
 <!-- CONTACT -->
 ## Contact
 
-bitCirno (Bilibili) - [@bitCirno](https://b23.tv/3oXghzO) - 1637131272@qq.com
+bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 
 <!-- 可以留下自己的其他平台联系方式 -->
 
-Project Link: [https://github.com/Rostave/keyboard-liberator](https://github.com/Rostave/keyboard-liberator)
-
-
-BAO-Hongzhen - [@wQd](https://b23.tv/KLyimBu) - 15874816801@163.com
-
-Project Link: [My Portfolio](https://drive.google.com/file/d/1aBJJ7bUIs24Dfr7240TMOpYMR8GOCc6r/view?usp=sharing)
+[BAO-Hongzhen](https://drive.google.com/file/d/1aBJJ7bUIs24Dfr7240TMOpYMR8GOCc6r/view?usp=sharing) - [@wQd](https://b23.tv/KLyimBu) (Bilibili) - 15874816801@163.com
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -105,6 +94,7 @@ Project Link: [My Portfolio](https://drive.google.com/file/d/1aBJJ7bUIs24Dfr7240
 ## Acknowledgments
 
 * [Pygame](https://www.pygame.org/news)
+* [tkparam](https://github.com/Rostave/tkparam)
 * [GitHub Pages](https://pages.github.com)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -113,15 +103,15 @@ Project Link: [My Portfolio](https://drive.google.com/file/d/1aBJJ7bUIs24Dfr7240
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Rostave/keyboard-liberator.svg?style=for-the-badge
-[contributors-url]: https://github.com/Rostave/keyboard-liberator/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Rostave/keyboard-liberator.svg?style=for-the-badge
-[forks-url]: https://github.com/Rostave/keyboard-liberator/network/members
-[stars-shield]: https://img.shields.io/github/stars/Rostave/keyboard-liberator.svg?style=for-the-badge
-[stars-url]: https://github.com/Rostave/keyboard-liberator/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Rostave/keyboard-liberator.svg?style=for-the-badge
-[issues-url]: https://github.com/Rostave/keyboard-liberator/issues
-[license-shield]: https://img.shields.io/github/license/Rostave/keyboard-liberator.svg?style=for-the-badge
-[license-url]: https://github.com/Rostave/keyboard-liberator/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/Rostave/controller-liberator.svg?style=for-the-badge
+[contributors-url]: https://github.com/Rostave/controller-liberator/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Rostave/controller-liberator.svg?style=for-the-badge
+[forks-url]: https://github.com/Rostave/controller-liberator/network/members
+[stars-shield]: https://img.shields.io/github/stars/Rostave/controller-liberator.svg?style=for-the-badge
+[stars-url]: https://github.com/Rostave/controller-liberator/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Rostave/controller-liberator.svg?style=for-the-badge
+[issues-url]: https://github.com/Rostave/controller-liberator/issues
+[license-shield]: https://img.shields.io/github/license/Rostave/controller-liberator.svg?style=for-the-badge
+[license-url]: https://github.com/Rostave/controller-liberator/blob/master/LICENSE.txt
 
 

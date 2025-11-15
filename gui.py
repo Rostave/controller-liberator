@@ -1,5 +1,5 @@
 """
-Group: Keyboard Liberators
+Group: Controller Liberators
 This program builds a graphical user interface for visualizing pose detection and user calibration.
 When receiving function calls from the main loop, the GUI instance renders corresponding graphics to the screen.
 """

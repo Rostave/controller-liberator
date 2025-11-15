@@ -1,5 +1,5 @@
 """
-Group: Keyboard Liberators
+Group: Controller Liberators
 Pose detection module using MediaPipe.
 
 This module provides the Detector class for real-time human pose estimation.

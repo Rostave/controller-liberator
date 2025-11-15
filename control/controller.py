@@ -1,5 +1,5 @@
 """
-Group: Keyboard Liberators
+Group: Controller Liberators
 This module defines the virtual racing control types, needs to be implemented.
 """
 

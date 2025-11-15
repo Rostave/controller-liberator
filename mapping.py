@@ -1,5 +1,5 @@
 """
-Group: Keyboard Liberators
+Group: Controller Liberators
 This program processes the pose data and maps it to control signals and send them to the virtual controller.
 """
 
