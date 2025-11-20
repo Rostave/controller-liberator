@@ -152,20 +152,6 @@ python main.py
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-## Demo: SimpleCarSimulator
-
-- **Location:** `SimpleCarSimulator/` at the repository root.
-- **What it is:** A small standalone demo game to try the project's controls and feel the mappings in a simple driving scenario.
-- **Included builds:**
-  - `SimpleCarSimulator/windows/` — prebuilt Windows executable(s). Run the `.exe` inside this folder to launch the demo.
-  - `SimpleCarSimulator/macos/` — macOS build (app bundle). Open the `.app` bundle or use `open SimpleCarSimulator.app` to launch.
-- **Notes:**
-  - The demo is provided as a convenience for quick testing and may use the platform-appropriate input backend (virtual gamepad on Windows, keyboard on macOS) depending on the build.
-  - If present, read the `SimpleCarSimulator/README.md` (inside the demo folder) for build-specific instructions and any runtime requirements.
-  - The simulator is standalone — you don't need to run the main project to launch it — but running both together may help evaluate live mapping behavior.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 <!-- CONTRIBUTING -->
 ## Contributors
