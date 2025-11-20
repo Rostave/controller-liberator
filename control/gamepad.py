@@ -1,5 +1,5 @@
 """
-Group: Keyboard Liberators
+Group: Controller Liberators
 This code provides a simpler way to send gamepad controls to the virtual controller.
 For Windows users.
 """

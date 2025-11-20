@@ -10,6 +10,7 @@ class TKDataType(Enum):
     INT = 1,
     FLOAT = 2,
     BOOL = 3,
+    BUTTON = 4,
 
 
 class TkParam(ABC):
@@ -208,8 +209,36 @@ class TkBoolBtn(TkParam):
         self._update_btn_label()
 
 
+class TkBtn(TkParam):
+    def __init__(self, root, param_name: str, on_change_callback: Callable[[bool], None]):
+        super().__init__(root, param_name, TKDataType.BOOL)
+        self.on_change_callback: Callable = on_change_callback
+        self.btn = ttk.Button(self._root, text=param_name, command=self.on_change)
+        self.btn.pack(fill=BOTH, expand=True)
+        self.btn.config(bootstyle="info")
+        self._update_btn_label()
+
+    def _update_btn_label(self):
+        self.btn.config(text=f"{self.name: <45}")
+
+    def __str__(self):
+        return f"Button: {self.name}"
+
+    def get(self) -> str:
+        return self.name
+
+    def set(self, value: str):
+        self.name = value
+        self._update_btn_label()
+
+    def on_change(self):
+        if self.on_change_callback is not None:
+            self.on_change_callback()
+
+
 TK_PARAM_SCALAR_MAP = {
     TKDataType.INT: TkScalar,
     TKDataType.FLOAT: TkScalar,
     TKDataType.BOOL: TkBoolBtn,
+    TKDataType.BUTTON: TkBtn,
 }

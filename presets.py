@@ -1,5 +1,5 @@
 """
-Group: Keyboard Liberators
+Group: Controller Liberators
 This module provides a minimal PresetManager class for storing and applying button/controls presets """
 
 from typing import Dict, Any, Optional, List, Callable

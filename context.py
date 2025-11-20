@@ -1,5 +1,5 @@
 """
-Group: Keyboard Liberators
+Group: Controller Liberators
 """
 from utils import check_os
 if check_os() != "Darwin":
@@ -18,7 +18,7 @@ class Context:
         self.mapper = None  # pose-control mapper instance
         self.gamepad = None  # virtual gamepad reference
         if check_os() != "Darwin":
-            self.tkparam = TKParamWindow(title="Keyboard Liberators Calibration")  # tkparam window reference
+            self.tkparam = TKParamWindow(title="Controller Liberators Calibration")  # tkparam window reference
         else:
             self.tkparam = None
 

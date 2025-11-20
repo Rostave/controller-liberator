@@ -1,5 +1,5 @@
 """
-Group: Keyboard Liberators
+Group: Controller Liberators
 Main entrance of the program. The code initializes components and maintain the main loop.
 The loop handles the process flow from image capturing to landmark detection to pose-control mapping.
 """

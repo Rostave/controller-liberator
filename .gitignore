@@ -208,7 +208,12 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 .idea/workspace.xml
-/.venv-*/
+.venv-*/
 tkparam/test_window.py
 tkparam/test_scalar.py
-/Presets/test.json
+Presets/test.json
+/Test_Scripts/
+gui_demo.py
+mapping_test.py
+presets_fang.py
+

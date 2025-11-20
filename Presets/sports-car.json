@@ -1,0 +1,15 @@
+{
+  "visual": {
+    "show camera capture": false,
+    "show pose estimation": true
+  },
+  "mapping": {
+    "steering safe angle": 7.0,
+    "steering left border": 45.1304,
+    "steering right border": 44.6981,
+    "brake radius min": 0.1048,
+    "brake radius max": 0.1618,
+    "throttle radius min": 0.2428,
+    "throttle radius max": 0.3874
+  }
+}

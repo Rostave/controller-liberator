@@ -1,12 +1,12 @@
 """
-Group: Keyboard Liberators
+Group: Controller Liberators
 This module contains utility functions
 """
 import math
 import sys
 import pygame
 import ctypes
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 from typing import Union, List
 import platform
 
@@ -124,6 +124,11 @@ def fold_tkparam_win_on_close():
 
 def save_preset_on_close() -> bool:
     return messagebox.askyesno("Save preset?", "Do you want to save the current preset?")
+
+
+def select_preset_json() -> str:
+    return filedialog.askopenfilename(title="Select preset JSON file", filetypes=[("JSON files", "*.json")],
+                                      initialdir="./Presets")
 
 
 def check_os() -> str:

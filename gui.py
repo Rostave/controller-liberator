@@ -1,5 +1,5 @@
 """
-Group: Keyboard Liberators
+Group: Controller Liberators
 This program builds a graphical user interface for visualizing pose detection and user calibration.
 When receiving function calls from the main loop, the GUI instance renders corresponding graphics to the screen.
 """
@@ -65,6 +65,11 @@ class GUI:
         self.fist_center_circle_radius: int = visual_cfg.getint("fist_center_circle_radius")
         self.fist_center_circle_color: Color = Color(visual_cfg.get("fist_center_circle_color"))
         self.steer_wheel_fill_color: Color = Color(visual_cfg.get("steer_wheel_fill_color"))
+        self.brake_throttle_circle_width: int = visual_cfg.getint("brake_throttle_circle_width")
+        self.brake_min_circle_color: Color = Color(visual_cfg.get("brake_min_circle_color"))
+        self.brake_max_circle_color: Color = Color(visual_cfg.get("brake_max_circle_color"))
+        self.throttle_min_circle_color: Color = Color(visual_cfg.get("throttle_min_circle_color"))
+        self.throttle_max_circle_color: Color = Color(visual_cfg.get("throttle_max_circle_color"))
         calibration_key = pref_cfg.get("calibration_mode_toggle_key").lower()
         self.calibration_mode_toggle_key: int = key2pygame_mapping.get(calibration_key, pygame.K_BACKSLASH)
 
@@ -73,6 +78,8 @@ class GUI:
             self.show_cam_capture: float = 0.0
             self.show_pose_estimation: float = 0.0
         else:
+            self.switch_preset = ctx.tkparam.button("SWITCH PRESET", self._switch_preset)
+            self.switch_preset = ctx.tkparam.button("SAVE CURRENT PRESET", self._save_tkparam_adjustment_to_preset)
             self.show_cam_capture = ctx.tkparam.button_bool("show camera capture", True)
             self.show_pose_estimation = ctx.tkparam.button_bool("show pose estimation", True)
 
@@ -80,6 +87,24 @@ class GUI:
 
     def _get_pos_from_per(self, per):
         return per[0] * self.reso[0], per[1] * self.reso[1]
+
+    def _switch_preset(self) -> None:
+        preset_path = select_preset_json()
+        if not preset_path:
+            return
+        preset_name = os.path.splitext(os.path.basename(preset_path))[0]
+        self.ctx.preset_mgr.apply_preset(preset_name)
+
+    def _save_tkparam_adjustment_to_preset(self):
+        if check_os() == "Darwin":
+            return
+        preset = self.ctx.active_preset
+        dump = self.ctx.tkparam.dump_param_to_dict()
+        for k in preset.visual.keys():
+            preset.visual[k] = dump[k]
+        for k in preset.mapping.keys():
+            preset.mapping[k] = dump[k]
+        self.ctx.preset_mgr.save_active_to_file()
 
     def _set_calibration_mode(self, mode: bool) -> None:
         """Set calibration mode"""
@@ -194,14 +219,19 @@ class GUI:
                 self.screen, self.fist_center_circle_color, pos_l, self.fist_center_circle_radius, 0)
             pygame.draw.circle(
                 self.screen, self.fist_center_circle_color, pos_r, self.fist_center_circle_radius, 0)
+            width = self.brake_throttle_circle_width
+            color: Color = self.brake_min_circle_color
             r: float = self.ctx.mapper.features.brake_radius_min * self.reso[0]
-            pygame.draw.circle(self.screen, self.fist_center_circle_color, fist_center, r, 1)
+            pygame.draw.circle(self.screen, color, fist_center, r, width)
+            color: Color = self.brake_max_circle_color
             r = self.ctx.mapper.features.brake_radius_max * self.reso[0]
-            pygame.draw.circle(self.screen, self.fist_center_circle_color, fist_center, r, 1)
+            pygame.draw.circle(self.screen, color, fist_center, r, width)
+            color: Color = self.throttle_min_circle_color
             r = self.ctx.mapper.features.throttle_radius_min * self.reso[0]
-            pygame.draw.circle(self.screen, self.fist_center_circle_color, fist_center, r, 1)
+            pygame.draw.circle(self.screen, color, fist_center, r, width)
+            color: Color = self.throttle_max_circle_color
             r = self.ctx.mapper.features.throttle_radius_max * self.reso[0]
-            pygame.draw.circle(self.screen, self.fist_center_circle_color, fist_center, r, 1)
+            pygame.draw.circle(self.screen, color, fist_center, r, width)
 
     def render_game_controls(self, feat: ControlFeature) -> None:
         self.__render_game_controls(feat.brake_pressure, feat.throttle_pressure, feat.handbrake_active,
@@ -422,22 +452,11 @@ class GUI:
             surface_pos = (btn['pos'][0] - btn_size // 2, btn['pos'][1] - btn_size // 2)
             self.screen.blit(btn_surface, surface_pos)
 
-    def _save_tkparam_preset(self):
-        if check_os() == "Darwin":
-            return
-        preset = self.ctx.active_preset
-        dump = self.ctx.tkparam.dump_param_to_dict()
-        for k in preset.visual.keys():
-            preset.visual[k] = dump[k]
-        for k in preset.mapping.keys():
-            preset.mapping[k] = dump[k]
-        self.ctx.preset_mgr.save_active_to_file()
-
     def handle_events(self) -> bool:
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 if save_preset_on_close():
-                    self._save_tkparam_preset()
+                    self._save_tkparam_adjustment_to_preset()
                 return False
             if e.type == pygame.KEYDOWN:
                 if e.key == self.calibration_mode_toggle_key:
