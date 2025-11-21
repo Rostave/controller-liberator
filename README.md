@@ -12,7 +12,11 @@
 [![Issues][issues-shield]][issues-url]
 [![Unlicense License][license-shield]][license-url]
 
+<div align="center">
 
+### [English](README.md) | [简体中文](README_zh-CN.md)
+
+</div>
 
 <!-- PROJECT LOGO -->
 <br />
