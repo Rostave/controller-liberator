@@ -49,7 +49,7 @@ class PresetManager:
         self._presets: Dict[str, Preset] = {}  # name -> Preset
 
         self.active_preset_name: str = "default"
-        self.active_preset: Optional[Preset, None] = Preset()
+        self.active_preset: Optional[Preset] = Preset()
 
         self.register_preset("default", Preset())  # add default preset
         self.__on_update_preset: List[Callable] = list()  # delegates on applying a new preset
