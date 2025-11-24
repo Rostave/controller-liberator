@@ -186,7 +186,7 @@ Unlicensed currently.
 
 bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 
-<!-- 可以留下自己的其他平台联系方式 -->
+<!-- You can leave your contacts here -->
 
 [BAO-Hongzhen](https://drive.google.com/file/d/1aBJJ7bUIs24Dfr7240TMOpYMR8GOCc6r/view?usp=sharing) - [@wQd](https://b23.tv/KLyimBu) (Bilibili) - 15874816801@163.com
 
