@@ -20,6 +20,7 @@ from detector import Detector
 from mapping import PoseControlMapper
 from gui import GUI
 
+
 # Load configuration
 config = configparser.ConfigParser()
 config.read('sysconfig.ini')
