@@ -277,7 +277,7 @@ class GUI:
         Draw a pedal using icon image with fill based on pressure.
         Selects brake or throttle icon based on label.
         """
-        
+
         if label == "Brake":
             icon = self.brake_icon
         elif label == "Throttle":
