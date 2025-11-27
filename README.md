@@ -132,7 +132,7 @@ python main.py
   - Move hands left/right: Steering
 
 ### Sample Game
-- **Game Link**: Download the sample game for Mac and Windows on: https://flamberge-backtrace.itch.io/simple-car-simulator
+- **Game Link**: Download the sample game for Mac and Windows on: https://flamberge-backtrace.itch.io/simple-car-simulator. Or you can download it in the realeases.
 
 
 ### Troubleshooting
