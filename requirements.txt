@@ -18,8 +18,8 @@ attrs>=25.4.0
 pynput==1.8.1
 
 # Windows only: Virtual gamepad support
-# Uncomment the line below if you are on Windows:
-# vgamepad
+# Please install the virtual gamepad driver in the pop-up window:
+vgamepad
 
 # Installation instructions:
 # --------------------------------

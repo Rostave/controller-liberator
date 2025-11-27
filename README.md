@@ -25,6 +25,11 @@
 
 ![main](Doc/imgs/1.png)
 
+**_IMPORTANT NOTES_**: 
+
+- _**Please run the application using Python<=3.12**, as mediapipe not support Python 3.13 yet !_
+
+- _When installing Python lib vgamepad, a pop-up window will ask for installing the virtual gamepad driver. Please click install._
 
 ## Introduction
 
