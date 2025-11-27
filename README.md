@@ -12,7 +12,11 @@
 [![Issues][issues-shield]][issues-url]
 [![Unlicense License][license-shield]][license-url]
 
+<div align="center">
 
+### [English](README.md) | [简体中文](README_zh-CN.md) | [繁體中文](README_zh-TW.md)
+
+</div>
 
 <!-- PROJECT LOGO -->
 <br />
@@ -227,5 +231,4 @@ bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 [issues-url]: https://github.com/Rostave/controller-liberator/issues
 [license-shield]: https://img.shields.io/github/license/Rostave/controller-liberator.svg?style=for-the-badge
 [license-url]: https://github.com/Rostave/controller-liberator/blob/master/LICENSE.txt
-
 
