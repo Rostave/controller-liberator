@@ -36,6 +36,7 @@ Controller Liberator 是一个基于手势的游戏控制器，它使用计算�
 
 该系统提供实时视觉反馈，带有透明叠加窗口，显示你检测到的手部位置和当前控制状态（转向、油门、刹车）。它的设计理念是有趣、易用，并且可以跨多个平台工作。
 
+该应用程序已在 [Horizon4](https://forza.net/) 上测试，如果没有该游戏，可以尝试提供的[示例游戏](#示例游戏)！
 
 <p align="right">(<a href="#readme-top">返回顶部</a>)</p>
 
@@ -73,6 +74,8 @@ Controller Liberator 是一个基于手势的游戏控制器，它使用计算�
 - 除标准依赖外无需额外设置
 - 由于 macOS 线程限制，TKParam GUI 被禁用
 - 使用 `Presets/` 目录中的预设文件进行校准调整
+
+**_由于线程限制，该应用程序对 macOS 缺乏完整支持，我们建议在 Windows 上运行此应用程序_**
 
 ### Linux
 - 使用键盘控制（WASD 键）
@@ -188,7 +191,7 @@ python main.py
 
 bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 
-<!-- 可以留下自己的其他平台联系方式 -->
+<!-- You can leave your contacts here -->
 
 [BAO-Hongzhen](https://drive.google.com/file/d/1aBJJ7bUIs24Dfr7240TMOpYMR8GOCc6r/view?usp=sharing) - [@wQd](https://b23.tv/KLyimBu) (Bilibili) - 15874816801@163.com
 
@@ -200,6 +203,7 @@ bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 ## 致谢
 
 * [Pygame](https://www.pygame.org/news)
+* [Mediapipe](https://pypi.org/project/mediapipe/)
 * [tkparam](https://github.com/Rostave/tkparam)
 * [GitHub Pages](https://pages.github.com)
 
