@@ -43,6 +43,8 @@ The system provides real-time visual feedback with a transparent overlay window,
 
 The application is tested with [Horizon4](https://forza.net/), if no having the game, you can try the [sample game](#sample-game) provided instead!
 
+**Want to try it online immediately?** We've also prepared an [online racing games collection](https://poki.com/zh/%E8%B5%9B%E8%BD%A6) for you to experience the controller with various racing games directly in your browser. Feel free to play!
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 

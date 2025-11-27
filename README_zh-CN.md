@@ -44,6 +44,8 @@ Controller Liberator 是一个基于手势的游戏控制器，它使用计算�
 
 该应用程序已在 [Horizon4](https://forza.net/) 上测试，如果没有该游戏，可以尝试提供的[示例游戏](#示例游戏)！
 
+**想要立即在线体验？**我们还提供了一个[在线赛车游戏合集](https://poki.com/zh/%E8%B5%9B%E8%BD%A6)，让你可以直接在浏览器中体验各种各样的赛车游戏控制。欢迎试玩！
+
 <p align="right">(<a href="#readme-top">返回顶部</a>)</p>
 
 

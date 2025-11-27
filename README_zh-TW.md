@@ -44,6 +44,8 @@ Controller Liberator 是一個基於手勢的遊戲控制器，它使用電腦�
 
 該應用程式已在 [Horizon4](https://forza.net/) 上測試，如果沒有該遊戲，可以嘗試提供的[範例遊戲](#範例遊戲)！
 
+**想要立即線上體驗？**我們還提供了一個[線上賽車遊戲合集](https://poki.com/zh/%E8%B5%9B%E8%BD%A6)，讓你可以直接在瀏覽器中體驗各種各樣的賽車遊戲控制。歡迎試玩！
+
 <p align="right">(<a href="#readme-top">返回頂部</a>)</p>
 
 
