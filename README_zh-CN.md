@@ -147,7 +147,7 @@ python main.py
 - 按关闭窗口按钮退出程序，系统会询问是否保存当前预设。
 
 ### 示例游戏
-- **游戏链接**：在此下载 Mac 和 Windows 版示例游戏：https://flamberge-backtrace.itch.io/simple-car-simulator。或者你可以在 releases 中下载。
+- **游戏链接**：在此下载 Mac 和 Windows 版[示例游戏](https://flamberge-backtrace.itch.io/simple-car-simulator)。或者你可以在 releases 中下载。
 
 
 ### 故障排除
