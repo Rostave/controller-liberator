@@ -143,7 +143,7 @@ The closer your hands get to the blue inner ring, the more you decelerate.
 - Press close window button to exit the program, the system will ask whether to save the current preset.
 
 ### Sample Game
-- **Game Link**: Download the sample game for Mac and Windows on: https://flamberge-backtrace.itch.io/simple-car-simulator
+- **Game Link**: Download the sample game for Mac and Windows on: https://flamberge-backtrace.itch.io/simple-car-simulator. Or you can download it in the realeases.
 
 
 ### Troubleshooting
