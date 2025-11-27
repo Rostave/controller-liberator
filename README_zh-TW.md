@@ -79,7 +79,7 @@ Controller Liberator 是一個基於手勢的遊戲控制器，它使用電腦�
 
 ### macOS
 - 使用鍵盤控制（WASD 鍵：A=左轉，D=右轉，W=油門，S=剎車）
-- 除標準依賴外無需額外設定
+- 需要 `pyobjc-framework-Cocoa` 以支援視窗管理（已包含在 requirements.txt 中）
 - 由於 macOS 執行緒限制，TKParam GUI 被停用
 - 使用 `Presets/` 目錄中的預設檔案進行校準調整
 

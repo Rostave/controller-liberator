@@ -17,6 +17,8 @@ ttkbootstrap
 # --------------------------------
 # macOS/Linux: Uses pynput for keyboard control
 pynput==1.8.1
+# macOS: Window management
+pyobjc-framework-Cocoa; sys_platform == 'darwin'
 
 # Windows only: Virtual gamepad support
 # Please install the virtual gamepad driver in the pop-up window:

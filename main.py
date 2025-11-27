@@ -52,7 +52,7 @@ while True:
 
     ret, frame = camera.read()
     if not ret:
-        print("Cannot capture frame, perhaps not found camera. Please switch to a device with camera!")
+        print("Cannot capture frame")
         break
 
     # Turn BGR image format to RGB and detect pose landmarks

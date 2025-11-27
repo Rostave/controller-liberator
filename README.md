@@ -78,7 +78,7 @@ The application is tested with [Horizon4](https://forza.net/), if no having the 
 
 ### macOS
 - Uses keyboard control (WASD keys: A=left, D=right, W=throttle, S=brake)
-- No additional setup required beyond standard dependencies
+- Requires `pyobjc-framework-Cocoa` for window management (included in requirements.txt)
 - TKParam GUI is disabled due to macOS threading limitations
 - Use preset files in `Presets/` directory for calibration adjustments
 
