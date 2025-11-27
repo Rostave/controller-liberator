@@ -29,6 +29,12 @@
 
 ![main](Doc/imgs/1.png)
 
+**_重要說明_**: 
+
+- _**請使用 Python<=3.12 執行該應用程式**，因為 mediapipe 尚不支援 Python 3.13！_
+
+- _安裝 Python 函式庫 vgamepad 時，將會彈出視窗要求安裝虛擬遊戲手把驅動。請點擊安裝。_
+
 
 ## 簡介
 
@@ -139,7 +145,7 @@ python main.py
 - 按關閉視窗按鈕退出程式，系統會詢問是否儲存當前預設。
 
 ### 範例遊戲
-- **遊戲連結**：在此下載 Mac 和 Windows 版範例遊戲：https://flamberge-backtrace.itch.io/simple-car-simulator
+- **遊戲連結**：在此下載 Mac 和 Windows 版範例遊戲：https://flamberge-backtrace.itch.io/simple-car-simulator。或者你可以在 releases 中下載。
 
 
 ### 故障排除
