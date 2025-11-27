@@ -32,6 +32,7 @@ Controller Liberator is a gesture-based game controller that transforms your bod
 
 The system provides real-time visual feedback with a transparent overlay window, showing your detected hand positions and current control states (steering, throttle, brake). It's designed to be fun, accessible, and works across multiple platforms.
 
+The application is tested with [Horizon4](https://forza.net/), if no having the game, you can try the [sample game](#sample-game) provided instead!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -69,6 +70,9 @@ The system provides real-time visual feedback with a transparent overlay window,
 - No additional setup required beyond standard dependencies
 - TKParam GUI is disabled due to macOS threading limitations
 - Use preset files in `Presets/` directory for calibration adjustments
+
+**_The application lacks full-support for macOS due to threading limitations, we recommend to 
+run this application on Windows_**
 
 ### Linux
 - Uses keyboard control (WASD keys)
@@ -198,6 +202,7 @@ bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 ## Acknowledgments
 
 * [Pygame](https://www.pygame.org/news)
+* [Mediapipe](https://pypi.org/project/mediapipe/)
 * [tkparam](https://github.com/Rostave/tkparam)
 * [GitHub Pages](https://pages.github.com)
 

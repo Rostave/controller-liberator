@@ -55,9 +55,11 @@ while True:
         print("Cannot capture frame")
         break
 
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Turn BGR image format to RGB
-    landmarks, frame = detector.get_landmarks(frame)  # Detect pose landmarks
+    # Turn BGR image format to RGB and detect pose landmarks
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    landmarks, frame = detector.get_landmarks(frame)
 
+    # Visualize pose detection and trigger game controls
     if landmarks:
         gui.render_np_frame(frame)  # Draw webcam capture
         feats = mapper.extract_features(landmarks)  # Extract pose features

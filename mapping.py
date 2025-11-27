@@ -39,7 +39,6 @@ class ControlFeature:
             self.brake_radius_max: float = 0.0
             self.throttle_radius_min: float = 0.0
             self.throttle_radius_max: float = 0.0
-
             # self.throttle_dist_ratio_center: float = 0.0
             # self.throttle_dist_ratio_safe_dist: float = 0.0
             # self.throttle_dist_ratio_max_dist: float = 0.0
@@ -53,9 +52,9 @@ class ControlFeature:
             # throttle and brake
             # -max_dist ---- -safe_dist --- 0 --- safe_dist --- max_dist
             # |<-     brake     ->|                 |<-  throttle  ->|
-            self.throttle_dist_ratio_center = ctx.tkparam.scalar("throttle measure center", 6.0, 0.0, 9.0)
-            self.throttle_dist_ratio_safe_dist = ctx.tkparam.scalar("throttle safe distance", 0.6, 0.0, 2.0)
-            self.throttle_dist_ratio_max_dist = ctx.tkparam.scalar("throttle max distance", 2.0, 0.0, 5.0)
+            # self.throttle_dist_ratio_center = ctx.tkparam.scalar("throttle measure center", 6.0, 0.0, 9.0)
+            # self.throttle_dist_ratio_safe_dist = ctx.tkparam.scalar("throttle safe distance", 0.6, 0.0, 2.0)
+            # self.throttle_dist_ratio_max_dist = ctx.tkparam.scalar("throttle max distance", 2.0, 0.0, 5.0)
             self.brake_radius_min = ctx.tkparam.scalar("brake radius min", 6.0, 0.0, 1.0)
             self.brake_radius_max = ctx.tkparam.scalar("brake radius max", 6.001, 0.0, 1.0)
             self.throttle_radius_min = ctx.tkparam.scalar("throttle radius min", 6.002, 0.0, 1.0)
@@ -100,9 +99,9 @@ class PoseControlMapper:
             f.brake_radius_max = preset.mapping["brake radius max"]
             f.throttle_radius_min = preset.mapping["throttle radius min"]
             f.throttle_radius_max = preset.mapping["throttle radius max"]
-            f.throttle_dist_ratio_center = preset.mapping["throttle measure center"]
-            f.throttle_dist_ratio_safe_dist = preset.mapping["throttle safe distance"]
-            f.throttle_dist_ratio_max_dist = preset.mapping["throttle max distance"]
+            # f.throttle_dist_ratio_center = preset.mapping["throttle measure center"]
+            # f.throttle_dist_ratio_safe_dist = preset.mapping["throttle safe distance"]
+            # f.throttle_dist_ratio_max_dist = preset.mapping["throttle max distance"]
         else:
             self.ctx.tkparam.load_param_from_dict(preset.mapping)
 
@@ -145,23 +144,23 @@ class PoseControlMapper:
 
         # Distances between fists are more precise than segment ratio for throttle and brake
 
-        shoulder_pts = [L(landmarks, i) for i in self.body_shoulder_indices]
-        hip_pts = [L(landmarks, i) for i in self.body_hip_indices]
-        len_s = dist_pow(*shoulder_pts, e=4)
-        len_h = dist_pow(*hip_pts, e=4)
-        throttle_ratio = len_s / len_h
-        throttle_center = f.throttle_dist_ratio_center
-        throttle_dist = f.throttle_dist_ratio_max_dist
-        throttle_safe_dist = f.throttle_dist_ratio_safe_dist
-        throttle_real_dist = throttle_dist - throttle_safe_dist
-        throttle_thresh = throttle_center + throttle_safe_dist
-        brake_thresh = throttle_center - throttle_safe_dist
-        if throttle_ratio >= throttle_thresh:  # throttling
-            f.throttle_pressure = clamp01((throttle_ratio - throttle_thresh) / throttle_real_dist)
-            f.brake_pressure = 0.0
-        elif throttle_ratio <= brake_thresh:  # braking
-            f.throttle_pressure = 0.0
-            f.brake_pressure = clamp01((brake_thresh - throttle_ratio) / throttle_real_dist)
+        # shoulder_pts = [L(landmarks, i) for i in self.body_shoulder_indices]
+        # hip_pts = [L(landmarks, i) for i in self.body_hip_indices]
+        # len_s = dist_pow(*shoulder_pts, e=4)
+        # len_h = dist_pow(*hip_pts, e=4)
+        # throttle_ratio = len_s / len_h
+        # throttle_center = f.throttle_dist_ratio_center
+        # throttle_dist = f.throttle_dist_ratio_max_dist
+        # throttle_safe_dist = f.throttle_dist_ratio_safe_dist
+        # throttle_real_dist = throttle_dist - throttle_safe_dist
+        # throttle_thresh = throttle_center + throttle_safe_dist
+        # brake_thresh = throttle_center - throttle_safe_dist
+        # if throttle_ratio >= throttle_thresh:  # throttling
+        #     f.throttle_pressure = clamp01((throttle_ratio - throttle_thresh) / throttle_real_dist)
+        #     f.brake_pressure = 0.0
+        # elif throttle_ratio <= brake_thresh:  # braking
+        #     f.throttle_pressure = 0.0
+        #     f.brake_pressure = clamp01((brake_thresh - throttle_ratio) / throttle_real_dist)
 
         return f
 
