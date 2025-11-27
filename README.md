@@ -32,6 +32,7 @@ Controller Liberator is a gesture-based game controller that transforms your bod
 
 The system provides real-time visual feedback with a transparent overlay window, showing your detected hand positions and current control states (steering, throttle, brake). It's designed to be fun, accessible, and works across multiple platforms.
 
+The application is tested with [Horizon4](https://forza.net/), if no having the game, you can try the [sample game](#sample-game) provided instead!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -69,6 +70,9 @@ The system provides real-time visual feedback with a transparent overlay window,
 - No additional setup required beyond standard dependencies
 - TKParam GUI is disabled due to macOS threading limitations
 - Use preset files in `Presets/` directory for calibration adjustments
+
+**_The application lacks full-support for macOS due to threading limitations, we recommend to 
+run this application on Windows_**
 
 ### Linux
 - Uses keyboard control (WASD keys)
@@ -125,11 +129,13 @@ python main.py
 ### Controls
 
 - **K key**: Toggle calibration mode (Windows only with TKParam)
-- **ESC**: Exit application
 - **Hand gestures**:
-  - Raise both hands above shoulders: Throttle
-  - Lower both hands below hips: Brake
-  - Move hands left/right: Steering
+  - **Throttle**: Increase the spacing between the fists, and let both fists land inside the red band. 
+The closer your hands get to the red outer ring, the more you accelerate.
+  - **Brake**: Decrease the spacing between the fists, and let both fists land inside the blue band. 
+The closer your hands get to the blue inner ring, the more you decelerate.
+  - **Steering**: Turning both hands as if holding a steering wheel
+- Press close window button to exit the program, the system will ask whether to save the current preset.
 
 ### Sample Game
 - **Game Link**: Download the sample game for Mac and Windows on: https://flamberge-backtrace.itch.io/simple-car-simulator. Or you can download it in the realeases.
@@ -184,7 +190,7 @@ Unlicensed currently.
 
 bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 
-<!-- 可以留下自己的其他平台联系方式 -->
+<!-- You can leave your contacts here -->
 
 [BAO-Hongzhen](https://drive.google.com/file/d/1aBJJ7bUIs24Dfr7240TMOpYMR8GOCc6r/view?usp=sharing) - [@wQd](https://b23.tv/KLyimBu) (Bilibili) - 15874816801@163.com
 
@@ -196,6 +202,7 @@ bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 ## Acknowledgments
 
 * [Pygame](https://www.pygame.org/news)
+* [Mediapipe](https://pypi.org/project/mediapipe/)
 * [tkparam](https://github.com/Rostave/tkparam)
 * [GitHub Pages](https://pages.github.com)
 
