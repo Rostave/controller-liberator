@@ -11,6 +11,7 @@ pygame==2.6.1
 numpy>=1.26.4
 protobuf>=4.25.3
 attrs>=25.4.0
+ttkbootstrap
 
 # Platform-specific dependencies
 # --------------------------------
