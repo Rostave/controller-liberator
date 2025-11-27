@@ -147,7 +147,7 @@ python main.py
 - 按關閉視窗按鈕退出程式，系統會詢問是否儲存當前預設。
 
 ### 範例遊戲
-- **遊戲連結**：在此下載 Mac 和 Windows 版範例遊戲：https://flamberge-backtrace.itch.io/simple-car-simulator。或者你可以在 releases 中下載。
+- **遊戲連結**：在此下載 Mac 和 Windows 版[範例遊戲](https://flamberge-backtrace.itch.io/simple-car-simulator)。或者你可以在 releases 中下載。
 
 
 ### 故障排除
