@@ -32,6 +32,8 @@ Controller Liberator is a gesture-based game controller that transforms your bod
 
 The system provides real-time visual feedback with a transparent overlay window, showing your detected hand positions and current control states (steering, throttle, brake). It's designed to be fun, accessible, and works across multiple platforms.
 
+<img src="Doc/imgs/1.mp4" width="500" height="300" alt="sample game">
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
