@@ -29,6 +29,25 @@
 
 ![main](Doc/imgs/1.png)
 
+---
+
+<p align="center"><b>Drive the vehicle using hand gestures ↓</b></p>
+<img src="Doc/gifs/1.gif" alt="throttle"></img>
+
+---
+
+<p align="center"><b>Turn both hands to make a right turn ↓</b></p>
+<img src="Doc/gifs/2.gif" alt="throttle"></img>
+
+---
+
+<p align="center"><b>Control reversing and avoid obstacles using hand gestures ↓</b></p>
+<img src="Doc/gifs/3.gif" alt="throttle"></img>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
+
 **_IMPORTANT NOTES_**: 
 
 - _**Please run the application using Python<=3.12**, as mediapipe not support Python 3.13 yet !_
@@ -44,11 +63,6 @@ The system provides real-time visual feedback with a transparent overlay window,
 The application is tested with [Horizon4](https://forza.net/), if no having the game, you can try the [sample game](#sample-game) provided instead!
 
 **Want to try it online immediately?** We've also prepared an [online racing games collection](https://poki.com/zh/%E8%B5%9B%E8%BD%A6) for you to experience the controller with various racing games directly in your browser. Feel free to play!
-
-<img src="Doc/imgs/1.mp4" width="500" height="300" alt="sample game">
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 ## Features
 
