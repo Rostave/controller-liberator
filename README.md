@@ -137,6 +137,27 @@ run this application on Windows_**
 python main.py
 ```
 
+### Alternative: Install as Python Package
+
+If you prefer to install it as a system-wide command:
+
+1. Navigate to the package build directory:
+   ```sh
+   cd package_build
+   ```
+2. Install the package:
+   ```sh
+   pip install .
+   ```
+3. Run from anywhere:
+   ```sh
+   keyboard-liberator
+   ```
+
+3. (Optional) Configure settings in `sysconfig.ini`:
+   - Adjust camera resolution, FPS display, MediaPipe settings
+   - Change default preset or calibration key
+
 ### Controls
 
 - **K key**: Toggle calibration mode (Windows only with TKParam)

@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "keyboard-liberator"
+version = "0.1.0"
+description = "Controller Liberator: A gesture-based game controller"
+readme = "README.md"
+authors = [ { name = "Rostave" } ]
+requires-python = ">=3.8"
+dependencies = [
+    "pygame>=2.0",
+    "mediapipe==0.10.21",
+    "opencv-python==4.11.0.86",
+    "numpy>=1.26.4",
+    "protobuf>=4.25.3",
+    "attrs>=25.4.0",
+    "ttkbootstrap",
+    "pynput; platform_system != 'Windows'",
+    "pyobjc-framework-Cocoa; platform_system == 'Darwin'",
+    "vgamepad; platform_system == 'Windows'",
+]
+
+[project.scripts]
+keyboard-liberator = "keyboard_liberator:run"
+
+[tool.setuptools]
+packages = ["keyboard_liberator"]
+
+[tool.setuptools.package-data]
+keyboard_liberator = ["resources/**/*"]

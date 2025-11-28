@@ -127,6 +127,23 @@ Controller Liberator 是一個基於手勢的遊戲控制器，它使用電腦�
    pip install -r requirements.txt
    ```
 
+### 替代方案：作為 Python 套件安裝
+
+如果你更喜歡將其安裝為系統指令：
+
+1. 進入套件建置目錄：
+   ```sh
+   cd package_build
+   ```
+2. 安裝套件：
+   ```sh
+   pip install .
+   ```
+3. 在任意位置執行：
+   ```sh
+   keyboard-liberator
+   ```
+
 3. （可選）在 `sysconfig.ini` 中配置設定：
    - 調整攝影機解析度、FPS 顯示、MediaPipe 設定
    - 更改預設預設或校準鍵

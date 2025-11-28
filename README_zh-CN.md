@@ -131,6 +131,25 @@ Controller Liberator 是一个基于手势的游戏控制器，它使用计算�
    - 调整摄像头分辨率、FPS 显示、MediaPipe 设置
    - 更改默认预设或校准键
 
+### 替代方案：作为 Python 包安装
+
+如果你更喜欢将其安装为系统命令：
+
+1. 进入包构建目录：
+   ```sh
+   cd package_build
+   ```
+2. 安装包：
+   ```sh
+   pip install .
+   ```
+3. 在任意位置运行：
+   ```sh
+   keyboard-liberator
+   ```
+
+3. （可选）在 `sysconfig.ini` 中配置设置：
+
 ### 运行
 
 ```sh
