@@ -37,12 +37,12 @@
 ---
 
 <p align="center"><b>Turn both hands to make a right turn ↓</b></p>
-<img src="Doc/gifs/2.gif" alt="throttle"></img>
+<img src="Doc/gifs/2.gif" alt="steer"></img>
 
 ---
 
 <p align="center"><b>Control reversing and avoid obstacles using hand gestures ↓</b></p>
-<img src="Doc/gifs/3.gif" alt="throttle"></img>
+<img src="Doc/gifs/3.gif" alt="reverse"></img>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -81,6 +81,25 @@ The application is tested with [Horizon4](https://forza.net/), if no having the 
 - **Anti-aliased Graphics**: Smooth rendering using pygame's gfxdraw
 - **Performance Optimized**: Efficient frame processing with configurable FPS
 
+_Example of customizing control parameters:_
+<img src="Doc/gifs/calibration-mode.gif" alt="throttle"></img>
+
+_Press k (de default) to turn off calibration mode:_
+<img src="Doc/gifs/transparent-mode.gif" alt="throttle"></img>
+
+### Controls
+
+- **K key**: Toggle calibration mode (Windows only with TKParam)
+- **Hand gestures**:
+  - **Throttle**: Increase the spacing between the fists, and let both fists land inside the red band. 
+The closer your hands get to the red outer ring, the more you accelerate.
+  - **Brake**: Decrease the spacing between the fists, and let both fists land inside the blue band. 
+The closer your hands get to the blue inner ring, the more you decelerate.
+  - **Steering**: Turning both hands as if holding a steering wheel
+- Press close window button to exit the program, the system will ask whether to save the current preset.
+
+_Example showing throttle, brake and steer control gestures:_
+<img src="Doc/gifs/steer-throttle-brake.gif" alt="throttle"></img>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -105,7 +124,6 @@ run this application on Windows_**
 - Uses keyboard control (WASD keys)
 - Requires pynput dependency
 - Similar to macOS setup
-
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -153,16 +171,6 @@ run this application on Windows_**
 python main.py
 ```
 
-### Controls
-
-- **K key**: Toggle calibration mode (Windows only with TKParam)
-- **Hand gestures**:
-  - **Throttle**: Increase the spacing between the fists, and let both fists land inside the red band. 
-The closer your hands get to the red outer ring, the more you accelerate.
-  - **Brake**: Decrease the spacing between the fists, and let both fists land inside the blue band. 
-The closer your hands get to the blue inner ring, the more you decelerate.
-  - **Steering**: Turning both hands as if holding a steering wheel
-- Press close window button to exit the program, the system will ask whether to save the current preset.
 
 ### Sample Game
 - **Game Link**: Download the sample game for Mac and Windows on: https://flamberge-backtrace.itch.io/simple-car-simulator. Or you can download it in the realeases.
