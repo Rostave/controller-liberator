@@ -12,7 +12,11 @@
 [![Issues][issues-shield]][issues-url]
 [![Unlicense License][license-shield]][license-url]
 
+<div align="center">
 
+### [English](README.md) | [简体中文](README_zh-CN.md) | [繁體中文](README_zh-TW.md)
+
+</div>
 
 <!-- PROJECT LOGO -->
 <br />
@@ -25,6 +29,11 @@
 
 ![main](Doc/imgs/1.png)
 
+**_IMPORTANT NOTES_**: 
+
+- _**Please run the application using Python<=3.12**, as mediapipe not support Python 3.13 yet !_
+
+- _When installing Python lib vgamepad, a pop-up window will ask for installing the virtual gamepad driver. Please click install._
 
 ## Introduction
 
@@ -32,8 +41,11 @@ Controller Liberator is a gesture-based game controller that transforms your bod
 
 The system provides real-time visual feedback with a transparent overlay window, showing your detected hand positions and current control states (steering, throttle, brake). It's designed to be fun, accessible, and works across multiple platforms.
 
-<img src="Doc/imgs/1.mp4" width="500" height="300" alt="sample game">
+The application is tested with [Horizon4](https://forza.net/), if no having the game, you can try the [sample game](#sample-game) provided instead!
 
+**Want to try it online immediately?** We've also prepared an [online racing games collection](https://poki.com/zh/%E8%B5%9B%E8%BD%A6) for you to experience the controller with various racing games directly in your browser. Feel free to play!
+
+<img src="Doc/imgs/1.mp4" width="500" height="300" alt="sample game">
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -68,9 +80,12 @@ The system provides real-time visual feedback with a transparent overlay window,
 
 ### macOS
 - Uses keyboard control (WASD keys: A=left, D=right, W=throttle, S=brake)
-- No additional setup required beyond standard dependencies
+- Requires `pyobjc-framework-Cocoa` for window management (included in requirements.txt)
 - TKParam GUI is disabled due to macOS threading limitations
 - Use preset files in `Presets/` directory for calibration adjustments
+
+**_The application lacks full-support for macOS due to threading limitations, we recommend to 
+run this application on Windows_**
 
 ### Linux
 - Uses keyboard control (WASD keys)
@@ -136,7 +151,7 @@ The closer your hands get to the blue inner ring, the more you decelerate.
 - Press close window button to exit the program, the system will ask whether to save the current preset.
 
 ### Sample Game
-- **Game Link**: Download the sample game for Mac and Windows on: https://flamberge-backtrace.itch.io/simple-car-simulator
+- **Game Link**: Download the sample game for Mac and Windows on: https://flamberge-backtrace.itch.io/simple-car-simulator. Or you can download it in the realeases.
 
 
 ### Troubleshooting
@@ -188,7 +203,7 @@ Unlicensed currently.
 
 bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 
-<!-- 可以留下自己的其他平台联系方式 -->
+<!-- You can leave your contacts here -->
 
 [BAO-Hongzhen](https://drive.google.com/file/d/1aBJJ7bUIs24Dfr7240TMOpYMR8GOCc6r/view?usp=sharing) - [@wQd](https://b23.tv/KLyimBu) (Bilibili) - 15874816801@163.com
 
@@ -200,6 +215,7 @@ bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 ## Acknowledgments
 
 * [Pygame](https://www.pygame.org/news)
+* [Mediapipe](https://pypi.org/project/mediapipe/)
 * [tkparam](https://github.com/Rostave/tkparam)
 * [GitHub Pages](https://pages.github.com)
 
@@ -219,5 +235,4 @@ bitCirno - [@bitCirno](https://b23.tv/3oXghzO) (Bilibili) - 1637131272@qq.com
 [issues-url]: https://github.com/Rostave/controller-liberator/issues
 [license-shield]: https://img.shields.io/github/license/Rostave/controller-liberator.svg?style=for-the-badge
 [license-url]: https://github.com/Rostave/controller-liberator/blob/master/LICENSE.txt
-
 

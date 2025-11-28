@@ -9,6 +9,8 @@ import ctypes
 from tkinter import messagebox, filedialog
 from typing import Union, List
 import platform
+import ctypes
+
 
 
 def L(landmarks, i):
@@ -42,9 +44,28 @@ def dist_pow(p1: Union[List, tuple], p2: Union[List, tuple], e) -> float:
 
 
 def set_window_topmost(set_topmost: bool) -> None:
-    """Set window topmost on Windows platform."""
-    # TODO: not work!
-    if sys.platform == 'win32':
+    """Set window topmost on Windows and macOS platform."""
+
+    if sys.platform == 'darwin':
+        try:
+            from AppKit import NSApp, NSFloatingWindowLevel, NSNormalWindowLevel
+            window = NSApp.keyWindow()
+            if not window:
+                # Fallback: try to find the first visible window
+                for win in NSApp.windows():
+                    if win.isVisible():
+                        window = win
+                        break
+            
+            if window:
+                level = NSFloatingWindowLevel if set_topmost else NSNormalWindowLevel
+                window.setLevel_(level)
+        except ImportError:
+            print("AppKit not found. Cannot set window topmost on macOS.")
+        except Exception as e:
+            print(f"Failed to set window topmost on macOS: {e}")
+
+    elif sys.platform == 'win32':
         hwnd = pygame.display.get_wm_info()['window']
         if set_topmost:
             ctypes.windll.user32.SetWindowPos(hwnd, -1, 0, 0, 0, 0, 0x0003)

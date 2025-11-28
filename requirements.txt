@@ -11,25 +11,17 @@ pygame==2.6.1
 numpy>=1.26.4
 protobuf>=4.25.3
 attrs>=25.4.0
+ttkbootstrap
 
 # Platform-specific dependencies
 # --------------------------------
 # macOS/Linux: Uses pynput for keyboard control
 pynput==1.8.1
+# macOS: Window management
+pyobjc-framework-Cocoa; sys_platform == 'darwin'
 
 # Windows only: Virtual gamepad support
-# Uncomment the line below if you are on Windows:
-# vgamepad
+# Please install the virtual gamepad driver in the pop-up window:
+vgamepad
 
-# Installation instructions:
-# --------------------------------
-# All platforms:
-#   pip install -r requirements.txt
-#
-# Windows users (for virtual gamepad):
-#   Uncomment vgamepad line above, then:
-#   pip install -r requirements.txt
-#
-# macOS/Linux users:
-#   The default requirements work out of the box
-#   (uses keyboard control via pynput)
+# Installation instructions: pip install -r requirements.txt

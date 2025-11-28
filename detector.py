@@ -66,7 +66,7 @@ class Detector:
         # Load config from context
         cfg = ctx.cfg["MediaPipe"]
         self.pose = self.mp_pose.Pose(
-            static_image_mode=False,  # False表示视频流模式，True表示静态图像模式
+            static_image_mode=False,  # False for video stream，True for static image
             model_complexity=cfg.getint("model_complexity"),
             smooth_landmarks=cfg.getboolean("smooth_landmarks"),
             enable_segmentation=False,

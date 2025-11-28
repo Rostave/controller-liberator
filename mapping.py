@@ -29,18 +29,19 @@ class ControlFeature:
         self.brake_pressure: float = 0.0  # [0,1] brake trigger strength
         self.throttle_pressure: float = 0.0  # [0,1] throttle trigger strength
         self.handbrake_active: bool = False  # whether handbrake is active
+        # self.throttle_dist_ratio_safe_dist: float = 0.0
 
         if check_os() == "Darwin":
             self.steering_safe_angle: float = 0.0
             self.steering_left_border_angle: float = 0.0
             self.steering_right_border_angle: float = 0.0
-            # self.throttle_dist_ratio_center: float = 0.0
-            # self.throttle_dist_ratio_safe_dist: float = 0.0
-            # self.throttle_dist_ratio_max_dist: float = 0.0
             self.brake_radius_min: float = 0.0
             self.brake_radius_max: float = 0.0
             self.throttle_radius_min: float = 0.0
             self.throttle_radius_max: float = 0.0
+            # self.throttle_dist_ratio_center: float = 0.0
+            # self.throttle_dist_ratio_safe_dist: float = 0.0
+            # self.throttle_dist_ratio_max_dist: float = 0.0
         else:
             # Control parameters
             # Steering sensitivity
@@ -94,13 +95,13 @@ class PoseControlMapper:
             f.steering_safe_angle = preset.mapping["steering safe angle"]
             f.steering_left_border_angle = preset.mapping["steering left border"]
             f.steering_right_border_angle = preset.mapping["steering right border"]
-            # f.throttle_dist_ratio_center = preset.mapping["throttle measure center"]
-            # f.throttle_dist_ratio_safe_dist = preset.mapping["throttle safe distance"]
-            # f.throttle_dist_ratio_max_dist = preset.mapping["throttle max distance"]
             f.brake_radius_min = preset.mapping["brake radius min"]
             f.brake_radius_max = preset.mapping["brake radius max"]
             f.throttle_radius_min = preset.mapping["throttle radius min"]
             f.throttle_radius_max = preset.mapping["throttle radius max"]
+            # f.throttle_dist_ratio_center = preset.mapping["throttle measure center"]
+            # f.throttle_dist_ratio_safe_dist = preset.mapping["throttle safe distance"]
+            # f.throttle_dist_ratio_max_dist = preset.mapping["throttle max distance"]
         else:
             self.ctx.tkparam.load_param_from_dict(preset.mapping)
 
@@ -140,6 +141,8 @@ class PoseControlMapper:
         if fist_radius > f.throttle_radius_min:  # throttle
             f.throttle_pressure = clamp01((fist_radius - f.throttle_radius_min) / (f.throttle_radius_max - f.throttle_radius_min))
             f.brake_pressure = 0.0
+
+        # Distances between fists are more precise than segment ratio for throttle and brake
 
         # shoulder_pts = [L(landmarks, i) for i in self.body_shoulder_indices]
         # hip_pts = [L(landmarks, i) for i in self.body_hip_indices]
