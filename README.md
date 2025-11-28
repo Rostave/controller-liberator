@@ -52,7 +52,7 @@
 
 - _**Please run the application using Python<=3.12**, as mediapipe not support Python 3.13 yet !_
 
-- _When installing Python lib vgamepad, a pop-up window will ask for installing the virtual gamepad driver. Please click install._
+- _When installing Python lib vgamepad, a pop-up window will ask for installing the virtual gamepad driver. Please allow the installation._
 
 ## Introduction
 
@@ -85,7 +85,7 @@ _Example of customizing control parameters:_
 
 <img src="Doc/gifs/calibration-mode.gif" alt="calibration-mode" width=400></img>
 
-_Press k (de default) to turn off calibration mode:_
+_Press k (by default) to turn off calibration mode:_
 
 <img src="Doc/gifs/transparent-mode.gif" alt="transparent-mode" width=400></img>
 
