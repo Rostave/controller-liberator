@@ -82,10 +82,12 @@ The application is tested with [Horizon4](https://forza.net/), if no having the 
 - **Performance Optimized**: Efficient frame processing with configurable FPS
 
 _Example of customizing control parameters:_
-<img src="Doc/gifs/calibration-mode.gif" alt="throttle"></img>
+
+<img src="Doc/gifs/calibration-mode.gif" alt="calibration-mode" width=400></img>
 
 _Press k (de default) to turn off calibration mode:_
-<img src="Doc/gifs/transparent-mode.gif" alt="throttle"></img>
+
+<img src="Doc/gifs/transparent-mode.gif" alt="transparent-mode" width=400></img>
 
 ### Controls
 
@@ -99,7 +101,8 @@ The closer your hands get to the blue inner ring, the more you decelerate.
 - Press close window button to exit the program, the system will ask whether to save the current preset.
 
 _Example showing throttle, brake and steer control gestures:_
-<img src="Doc/gifs/steer-throttle-brake.gif" alt="throttle"></img>
+
+<img src="Doc/gifs/steer-throttle-brake.gif" alt="throttle" width=400></img>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
